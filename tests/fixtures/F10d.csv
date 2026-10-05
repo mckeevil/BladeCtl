@@ -1,0 +1,9 @@
+# F10 with a display attached -> never KEPT_AWAKE (a display on the dGPU opens the gate, so it reads as LIGHT, as in A3)
+# Columns: dur = seconds this row lasts (2 s ticks); ac 1/0; d = D-state number (0 = D0, 3 = D3); display = a monitor on the dGPU;
+# pdh = dGPU busy % from PDH; util/p/l/ldef/lmax = NVML utilisation, power W, enforced/default/max limit W (only seen when the gate is open);
+# cap74/low78/sw269/hw270/brake271 = counter duty 0..1; reasons = clock-event bits; rate = battery mW (+ charging); batstate = PowerState flags;
+# fg/fggpu/fgcores/pkg/freq = foreground app, its GPU (1 Intel, 2 NVIDIA), cores busy, CPU package W, MHz; holders = Name:bytes:busy[:docked]|...
+#expect-never KEPT_AWAKE
+#expect-final-in AWAKE_IDLE,LIGHT
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq,holders
+126,0,0,1,0,2,12,80,80,105,,,,,,0x1,48,,400,-40000,0x2,60,,,,,,

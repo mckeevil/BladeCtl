@@ -1,0 +1,10 @@
+# F5: AC, L 35, P 34, U 99 (the Blade stuck at 35 W on its 230 W charger) -> LIMITED_ON_AC
+# Columns: dur = seconds this row lasts (2 s ticks); ac 1/0; d = D-state number (0 = D0, 3 = D3); display = a monitor on the dGPU;
+# pdh = dGPU busy % from PDH; util/p/l/ldef/lmax = NVML utilisation, power W, enforced/default/max limit W (only seen when the gate is open);
+# cap74/low78/sw269/hw270/brake271 = counter duty 0..1; reasons = clock-event bits; rate = battery mW (+ charging); batstate = PowerState flags;
+# fg/fggpu/fgcores/pkg/freq = foreground app, its GPU (1 Intel, 2 NVIDIA), cores busy, CPU package W, MHz; holders = Name:bytes:busy[:docked]|...
+#expect-final LIMITED_ON_AC
+#expect-never FULL_POWER
+#expect-tooltip Plugged in but limited: GPU capped at 35 W
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq,holders
+20,1,0,,96,99,34,35,80,105,0.9,,,,,0x4,65,,1000,-1000,0x1,80,,,,,,

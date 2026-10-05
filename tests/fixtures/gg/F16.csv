@@ -1,0 +1,30 @@
+# F16: on battery with the GPU asleep, FreeCAD's CPU use hovering at the R10 threshold (per-tick cores 1, 1, 1, 0.5 ...) -> no flicker between ASLEEP and CPU_LIMITED_BATTERY (the 6 s attention hold applies; SPEC 6.3)
+#learned cpu=FreeCAD:45:4200
+#expect-max-transitions 0
+#expect-final ASLEEP
+dur,ac,d,pdh,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq
+10,0,3,0,-20000,0x2,60,FreeCAD,1,0.1,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,0.5,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,0.5,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,0.5,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,0.5,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,0.5,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,1.0,18,2100
+2,0,3,0,-20000,0x2,60,FreeCAD,1,0.5,18,2100

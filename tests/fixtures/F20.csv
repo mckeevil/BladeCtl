@@ -1,0 +1,8 @@
+# F20: F19 with the foreground app flagged private (test hook) -> no CPU verdict, CPU row C1, no CPU learning
+#learned cpu=App:45:4200
+#expect-never CPU_LIMITED_BATTERY
+#expect-cpu C1_Private
+#expect-learn-cpu 0
+dur,ac,d,pdh,rate,batstate,bat,fg,fgcores,pkg,freq,allcore,dcmax,dcboost,nominal,private
+10,0,3,0,-20000,0x2,60,App,0.1,8,1500,10,80,0,2304,1
+30,0,3,0,-30000,0x2,60,App,0.97,18,1840,12,80,0,2304,1

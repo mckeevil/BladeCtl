@@ -1,0 +1,7 @@
+# F24: AC on USB-C with the lid closed (no internal panel), plugged in but not charging -> rest and use hidden, no "laptop using" parenthetical
+#learned rest=9
+#expect-use hidden
+#expect-battery Battery 54% · plugged in, not charging
+#expect-battery-not laptop using
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,pkg,freq,panel,hz,class,adapterw
+30,1,0,1,30,40,30,80,80,105,0.05,,,,,0x1,60,,1000,0,0x1,54,20,3000,0,0,usbc,65

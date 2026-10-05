@@ -1,0 +1,7 @@
+# F21: AC on USB-C 65 W, SOC 60, charging +30 W then only +12 W for 40 s while the barrel charges this band at 38 W -> supply AT ITS LIMIT after 30 s
+#learned band=38000
+#expect-supply-by AT_ITS_LIMIT 40
+#expect-supply-final AT_ITS_LIMIT
+dur,ac,d,pdh,rate,batstate,bat,class,adapterw
+10,1,3,0,30000,0x5,60,usbc,65
+40,1,3,0,12000,0x5,60,usbc,65

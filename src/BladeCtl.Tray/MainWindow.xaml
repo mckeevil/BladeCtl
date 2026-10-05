@@ -1,0 +1,913 @@
+<Window x:Class="BladeCtl.Tray.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:BladeCtl.Tray"
+        xmlns:power="clr-namespace:BladeCtl.Tray.Power"
+        Title="BladeCtl" Width="800" Height="730" MinWidth="720" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}"
+        FontFamily="{StaticResource BodyFont}" FontSize="13"
+        WindowStyle="None" ResizeMode="CanResize"
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Ideal" TextOptions.TextRenderingMode="ClearType">
+  <WindowChrome.WindowChrome>
+    <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+  </WindowChrome.WindowChrome>
+
+  <Grid x:Name="Root" Background="{StaticResource BgBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="44"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- ===== title bar ===== -->
+    <Border Grid.Row="0" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1">
+      <Grid Margin="16,0,8,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0" Text="BladeCtl" FontFamily="{StaticResource HeadFont}" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+        <Border Grid.Column="1" Style="{StaticResource Chip}" Margin="12,0,0,0" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal">
+            <Ellipse x:Name="DeviceDot" Width="8" Height="8" VerticalAlignment="Center">
+              <Ellipse.Style>
+                <Style TargetType="Ellipse">
+                  <Setter Property="Fill" Value="{StaticResource BadBrush}"/>
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding Connected}" Value="True"><Setter Property="Fill" Value="{StaticResource OkBrush}"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Ellipse.Style>
+            </Ellipse>
+            <TextBlock Text="{Binding DeviceLine}" FontSize="12" Foreground="{StaticResource Text2Brush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="2" Style="{StaticResource SegmentedHost}" Padding="3" HorizontalAlignment="Center" VerticalAlignment="Center" WindowChrome.IsHitTestVisibleInChrome="True">
+          <StackPanel Orientation="Horizontal">
+            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Blade" IsChecked="{Binding IsBladeView, Mode=OneWay}" Command="{Binding ShowBladeViewCommand}"/>
+            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Devices" IsChecked="{Binding IsDevicesView, Mode=OneWay}" Command="{Binding ShowDevicesViewCommand}"/>
+          </StackPanel>
+        </Border>
+        <Button Grid.Column="3" Style="{StaticResource GhostButton}" Height="28" Command="{Binding RestartElevatedCommand}" IsEnabled="{Binding Elevated, Converter={StaticResource InverseBool}}"
+                ToolTip="{Binding ElevatedTip}" WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal">
+            <Path Width="14" Height="14" Stretch="Uniform" StrokeThickness="1.75" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Data="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z M9 12l2 2 4-4">
+              <Path.Style>
+                <Style TargetType="Path">
+                  <Setter Property="Stroke" Value="{StaticResource WarnBrush}"/>
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding Elevated}" Value="True"><Setter Property="Stroke" Value="{StaticResource OkBrush}"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Path.Style>
+            </Path>
+            <TextBlock Text="{Binding ElevatedText}" FontSize="12" FontFamily="{StaticResource BodyFont}" FontWeight="Normal" Foreground="{StaticResource Text2Brush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+        <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="6,0,0,0" VerticalAlignment="Center">
+          <Button Style="{StaticResource WinButton}" Click="Minimize_Click" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize">
+            <Path Data="M0,0 L10,0" Stroke="{StaticResource Text2Brush}" StrokeThickness="1.5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          </Button>
+          <Button Style="{StaticResource WinButton}" Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Hide to tray (BladeCtl keeps running)">
+            <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{StaticResource Text2Brush}" StrokeThickness="1.5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ===== drift banner ===== -->
+    <Border Grid.Row="1" Background="{StaticResource WarnDimBrush}" BorderBrush="#40E3A94A" BorderThickness="0,0,0,1" Padding="16,0"
+            Visibility="{Binding DriftVisible, Converter={StaticResource BoolToVis}}">
+      <Grid Height="40">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Path Width="16" Height="16" Stretch="Uniform" Stroke="{StaticResource WarnBrush}" StrokeThickness="1.75" StrokeLineJoin="Round" VerticalAlignment="Center"
+              Data="M12 4l9 16H3l9-16z M12 10v4 M12 17h.01"/>
+        <TextBlock Grid.Column="1" Text="{Binding DriftText}" Margin="10,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+        <Button Grid.Column="2" Style="{StaticResource QuietButton}" Height="28" Content="Re-apply saved" Command="{Binding ReapplyCommand}"/>
+      </Grid>
+    </Border>
+
+    <!-- ===== body ===== -->
+    <Grid Grid.Row="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="280"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- left: what the hardware reports -->
+      <Border Grid.Column="0" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,1,0" Padding="20,18">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <!-- temps -->
+          <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+              <TextBlock Style="{StaticResource Label}" Text="CPU"/>
+              <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                <TextBlock Text="{Binding CpuText}" FontFamily="{StaticResource MonoFont}" FontSize="40" FontWeight="Medium" LineHeight="40"/>
+                <TextBlock Text="°C" FontFamily="{StaticResource HeadFont}" FontSize="14" Foreground="{StaticResource Text3Brush}" Margin="3,0,0,6" VerticalAlignment="Bottom"/>
+              </StackPanel>
+              <TextBlock Style="{StaticResource Muted}" Text="{Binding CpuNote}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+              <TextBlock Style="{StaticResource Label}" Text="GPU"/>
+              <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                <TextBlock Text="{Binding GpuText}" FontFamily="{StaticResource MonoFont}" FontSize="40" FontWeight="Medium" LineHeight="40"/>
+                <TextBlock Text="°C" FontFamily="{StaticResource HeadFont}" FontSize="14" Foreground="{StaticResource Text3Brush}" Margin="3,0,0,6" VerticalAlignment="Bottom"/>
+              </StackPanel>
+              <TextBlock Style="{StaticResource Muted}" Text="{Binding GpuNote}"/>
+            </StackPanel>
+          </Grid>
+
+          <!-- fan card -->
+          <Border Grid.Row="1" Background="{StaticResource Panel2Brush}" CornerRadius="12" Padding="12,14,12,10" Margin="0,18,0,0">
+            <StackPanel>
+              <Grid>
+                <TextBlock Style="{StaticResource Label}" Text="Fans" VerticalAlignment="Center"/>
+                <Border HorizontalAlignment="Right">
+                  <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource Chip}">
+                      <Setter Property="Background" Value="{StaticResource Panel3Brush}"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsGaming}" Value="True"><Setter Property="Background" Value="{StaticResource AccentDimBrush}"/></DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Border.Style>
+                  <TextBlock Text="{Binding ModeText}" FontSize="12" FontWeight="Medium" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                        <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsGaming}" Value="True"><Setter Property="Foreground" Value="{StaticResource AccentBrush}"/></DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </Border>
+              </Grid>
+              <local:Gauge Value="{Binding GaugeRpm}" Manual="{Binding ManualFan}" Floor="{Binding GaugeFloor}" Connected="{Binding Connected}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+              <UniformGrid Columns="3" Margin="8,-4,8,0">
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock Style="{StaticResource Label}" Text="Zone 1" FontSize="10" HorizontalAlignment="Center"/>
+                  <TextBlock Text="{Binding Rpm1Text}" Style="{StaticResource Mono}" FontSize="14" Foreground="{StaticResource Text2Brush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock Style="{StaticResource Label}" Text="Zone 2" FontSize="10" HorizontalAlignment="Center"/>
+                  <TextBlock Text="{Binding Rpm2Text}" Style="{StaticResource Mono}" FontSize="14" Foreground="{StaticResource Text2Brush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Center">
+                  <TextBlock Style="{StaticResource Label}" Text="Peak" FontSize="10" HorizontalAlignment="Center"/>
+                  <TextBlock Text="{Binding PeakText}" Style="{StaticResource Mono}" FontSize="14" Foreground="{StaticResource WarnBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+              </UniformGrid>
+            </StackPanel>
+          </Border>
+
+          <!-- restore -->
+          <Button Grid.Row="2" Margin="0,16,0,0" Command="{Binding RestoreAutoCommand}" IsEnabled="{Binding Connected}" HorizontalAlignment="Stretch">
+            <Button.Style>
+              <Style TargetType="Button" BasedOn="{StaticResource DangerQuietButton}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding ManualFan}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource BadBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </Button.Style>
+            <StackPanel Orientation="Horizontal">
+              <Path Width="15" Height="15" Stretch="Uniform" StrokeThickness="1.75" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                    Stroke="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"
+                    Data="M12 3v9 M6.3 6.3a8 8 0 1 0 11.4 0"/>
+              <TextBlock Text="RESTORE AUTO FAN" Margin="8,0,0,0" FontFamily="{StaticResource HeadFont}" FontWeight="SemiBold"
+                         Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
+            </StackPanel>
+          </Button>
+          <TextBlock Grid.Row="3" Style="{StaticResource Muted}" Text="{Binding RestoreHint}" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+
+          <!-- not found -->
+          <Border Grid.Row="4" Background="{StaticResource Panel2Brush}" CornerRadius="12" Padding="14" Margin="0,14,0,0" VerticalAlignment="Top"
+                  Visibility="{Binding Connected, Converter={StaticResource InverseBoolToVis}}">
+            <StackPanel>
+              <TextBlock Text="No control device answered" FontFamily="{StaticResource HeadFont}" FontSize="14" FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding NotFoundReason}" Style="{StaticResource Muted}" FontSize="12" Foreground="{StaticResource Text2Brush}" Margin="0,6,0,10"/>
+              <Button Style="{StaticResource AccentButton}" Content="Retry" HorizontalAlignment="Left" Command="{Binding RetryCommand}"/>
+            </StackPanel>
+          </Border>
+
+          <!-- status chips -->
+          <StackPanel Grid.Row="5">
+            <Border HorizontalAlignment="Left" Margin="0,0,0,6">
+              <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource Chip}">
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding SynapseKind}" Value="ok"><Setter Property="Background" Value="{StaticResource OkDimBrush}"/></DataTrigger>
+                    <DataTrigger Binding="{Binding SynapseKind}" Value="warn"><Setter Property="Background" Value="{StaticResource WarnDimBrush}"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Border.Style>
+              <TextBlock Text="{Binding SynapseText}" FontSize="12" FontWeight="Medium" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                    <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding SynapseKind}" Value="ok"><Setter Property="Foreground" Value="{StaticResource OkBrush}"/></DataTrigger>
+                      <DataTrigger Binding="{Binding SynapseKind}" Value="warn"><Setter Property="Foreground" Value="{StaticResource WarnBrush}"/></DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+            </Border>
+            <TextBlock Text="{Binding LoggingText}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" ToolTip="{Binding LoggingText}">
+              <TextBlock.Style>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource Muted}">
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding LoggingKind}" Value="bad"><Setter Property="Foreground" Value="{StaticResource BadBrush}"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </TextBlock.Style>
+            </TextBlock>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- right: what you ask for -->
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="16,14,16,4">
+        <Grid>
+
+        <!-- ===== DEVICES view ===== -->
+        <StackPanel Visibility="{Binding IsDevicesView, Converter={StaticResource BoolToVis}}">
+          <Grid Margin="0,0,0,10">
+            <TextBlock Style="{StaticResource Muted}" Text="{Binding DevicesSummary}" VerticalAlignment="Center" Margin="0,0,220,0"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button Style="{StaticResource QuietButton}" Height="26" Content="Match the Blade" Command="{Binding MatchBladeCommand}" Margin="0,0,6,0"
+                      ToolTip="Send the Blade's current effect, colour and brightness to every controllable accessory"/>
+              <Button Style="{StaticResource GhostButton}" Height="26" Content="Re-scan" Command="{Binding RefreshDevicesCommand}"/>
+            </StackPanel>
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Devices}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+                  <StackPanel>
+                    <Grid>
+                      <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Name}" FontFamily="{StaticResource HeadFont}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <Border Style="{StaticResource Chip}" Height="20" Margin="10,0,0,0" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Kind}" FontSize="11" Foreground="{StaticResource Text2Brush}" VerticalAlignment="Center"/>
+                        </Border>
+                      </StackPanel>
+                      <Border HorizontalAlignment="Right" Height="22" CornerRadius="6" Padding="8,0" VerticalAlignment="Center">
+                        <Border.Style>
+                          <Style TargetType="Border">
+                            <Setter Property="Background" Value="{StaticResource Panel2Brush}"/>
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding StatusKind}" Value="ok"><Setter Property="Background" Value="{StaticResource OkDimBrush}"/></DataTrigger>
+                              <DataTrigger Binding="{Binding StatusKind}" Value="warn"><Setter Property="Background" Value="{StaticResource WarnDimBrush}"/></DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="Medium" VerticalAlignment="Center">
+                          <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                              <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+                              <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusKind}" Value="ok"><Setter Property="Foreground" Value="{StaticResource OkBrush}"/></DataTrigger>
+                                <DataTrigger Binding="{Binding StatusKind}" Value="warn"><Setter Property="Foreground" Value="{StaticResource WarnBrush}"/></DataTrigger>
+                              </Style.Triggers>
+                            </Style>
+                          </TextBlock.Style>
+                        </TextBlock>
+                      </Border>
+                    </Grid>
+                    <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0">
+                      <Run Text="{Binding PidText, Mode=OneWay}" FontFamily="{StaticResource MonoFont}"/><Run Text=" · "/><Run Text="{Binding FactsLine, Mode=OneWay}"/>
+                    </TextBlock>
+
+                    <!-- controllable accessory -->
+                    <StackPanel Visibility="{Binding Supported, Converter={StaticResource BoolToVis}}" Margin="0,12,0,0">
+                      <Border Style="{StaticResource SegmentedHost}">
+                        <UniformGrid Rows="1">
+                          <RadioButton Style="{StaticResource SegmentedItem}" Content="Off" IsChecked="{Binding IsOff, Mode=OneWay}" Command="{Binding SetEffectCommand}" CommandParameter="Off"/>
+                          <RadioButton Style="{StaticResource SegmentedItem}" Content="Static" IsChecked="{Binding IsStatic, Mode=OneWay}" Command="{Binding SetEffectCommand}" CommandParameter="Static"/>
+                          <RadioButton Style="{StaticResource SegmentedItem}" Content="Spectrum" IsChecked="{Binding IsSpectrum, Mode=OneWay}" Command="{Binding SetEffectCommand}" CommandParameter="Spectrum"/>
+                          <RadioButton Style="{StaticResource SegmentedItem}" Content="Breathing" IsChecked="{Binding IsBreathing, Mode=OneWay}" Command="{Binding SetEffectCommand}" CommandParameter="Breathing"/>
+                        </UniformGrid>
+                      </Border>
+                      <Border Style="{StaticResource SegmentedHost}" Margin="0,6,0,0">
+                        <UniformGrid Rows="1">
+                          <RadioButton Style="{StaticResource SegmentedItem}" Content="Wave" IsChecked="{Binding IsWave, Mode=OneWay}" Command="{Binding SetEffectCommand}" CommandParameter="Wave"/>
+                          <RadioButton Style="{StaticResource SegmentedItem}" Content="Reactive" IsChecked="{Binding IsReactive, Mode=OneWay}" Command="{Binding SetEffectCommand}" CommandParameter="Reactive"/>
+                          <RadioButton Style="{StaticResource SegmentedItem}" Content="Starlight" IsChecked="{Binding IsStarlight, Mode=OneWay}" Command="{Binding SetEffectCommand}" CommandParameter="Starlight"/>
+                        </UniformGrid>
+                      </Border>
+                      <Grid Margin="0,8,0,0" Visibility="{Binding ShowDirection, Converter={StaticResource BoolToVis}}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <TextBlock Text="Direction" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                        <Border Grid.Column="1" Style="{StaticResource SegmentedHost}">
+                          <UniformGrid Rows="1">
+                            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Left to right" IsChecked="{Binding IsDirLtr, Mode=OneWay}" Command="{Binding SetDirectionCommand}" CommandParameter="1"/>
+                            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Right to left" IsChecked="{Binding IsDirRtl, Mode=OneWay}" Command="{Binding SetDirectionCommand}" CommandParameter="2"/>
+                          </UniformGrid>
+                        </Border>
+                      </Grid>
+                      <Grid Margin="0,8,0,0" Visibility="{Binding ShowSpeed, Converter={StaticResource BoolToVis}}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <TextBlock Text="Speed" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                        <Border Grid.Column="1" Style="{StaticResource SegmentedHost}">
+                          <UniformGrid Rows="1">
+                            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Fast" IsChecked="{Binding IsSpeed1, Mode=OneWay}" Command="{Binding SetSpeedCommand}" CommandParameter="1"/>
+                            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Medium" IsChecked="{Binding IsSpeed2, Mode=OneWay}" Command="{Binding SetSpeedCommand}" CommandParameter="2"/>
+                            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Slow" IsChecked="{Binding IsSpeed3, Mode=OneWay}" Command="{Binding SetSpeedCommand}" CommandParameter="3"/>
+                            <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Slowest" IsChecked="{Binding IsSpeed4, Mode=OneWay}" Command="{Binding SetSpeedCommand}" CommandParameter="4" Visibility="{Binding ShowSpeed4, Converter={StaticResource BoolToVis}}"/>
+                          </UniformGrid>
+                        </Border>
+                      </Grid>
+                      <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="Auto"/>
+                          <ColumnDefinition Width="40"/>
+                          <ColumnDefinition Width="*"/>
+                          <ColumnDefinition Width="40"/>
+                          <ColumnDefinition Width="92"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource GhostButton}" Height="26" Padding="4,0" Command="{Binding PickColorCommand}" ToolTip="Pick a colour" Margin="0,0,10,0"
+                                Visibility="{Binding ShowColour, Converter={StaticResource BoolToVis}}">
+                          <StackPanel Orientation="Horizontal">
+                            <Border Width="22" Height="22" CornerRadius="6" Background="{Binding ColorBrush}" BorderBrush="#2EFFFFFF" BorderThickness="1"/>
+                            <TextBlock Text="{Binding ColorHex}" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text2Brush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                          </StackPanel>
+                        </Button>
+                        <TextBlock Grid.Column="1" Text="0" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                        <Slider Grid.Column="2" Style="{StaticResource AccentSlider}" Minimum="0" Maximum="255" Value="{Binding Brightness, Mode=TwoWay}"
+                                Thumb.DragStarted="Dev_DragStarted" Thumb.DragCompleted="Dev_DragCompleted" PreviewMouseLeftButtonUp="Dev_MouseUp"/>
+                        <TextBlock Grid.Column="3" Text="255" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <TextBlock Grid.Column="4" Text="{Binding BrightnessText}" Style="{StaticResource Mono}" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                      </Grid>
+                      <Grid Margin="0,10,0,0">
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding ApplyAtLogon}" VerticalAlignment="Center">
+                          <TextBlock Text="Re-send at sign-in" FontSize="12"/>
+                        </CheckBox>
+                        <Button HorizontalAlignment="Right" Style="{StaticResource QuietButton}" Height="28" Content="Apply" Command="{Binding ApplyCommand}"/>
+                      </Grid>
+                      <TextBlock Style="{StaticResource Muted}" Text="{Binding MemoryNote}" Margin="0,8,0,0"/>
+                      <TextBlock Style="{StaticResource Muted}" Text="{Binding DeviceEffectText}" Margin="0,2,0,0"/>
+
+                      <!-- keyboard extras -->
+                      <Grid Margin="0,12,0,0" Visibility="{Binding IsKeyboard, Converter={StaticResource BoolToVis}}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding GameMode, Mode=TwoWay}" VerticalAlignment="Center">
+                          <StackPanel><TextBlock Text="Game mode" FontSize="12"/><TextBlock Style="{StaticResource Muted}" Text="{Binding GameModeNote}"/></StackPanel>
+                        </CheckBox>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                          <TextBlock Text="Polling" FontSize="12" HorizontalAlignment="Right"/>
+                          <Border Style="{StaticResource SegmentedHost}" Margin="0,4,0,0" Width="250">
+                            <UniformGrid Rows="1">
+                              <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="125 Hz" IsChecked="{Binding IsPoll125, Mode=OneWay}" Command="{Binding SetPollingCommand}" CommandParameter="125"/>
+                              <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="500 Hz" IsChecked="{Binding IsPoll500, Mode=OneWay}" Command="{Binding SetPollingCommand}" CommandParameter="500"/>
+                              <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="1000 Hz" IsChecked="{Binding IsPoll1000, Mode=OneWay}" Command="{Binding SetPollingCommand}" CommandParameter="1000"/>
+                            </UniformGrid>
+                          </Border>
+                          <TextBlock Style="{StaticResource Muted}" Text="{Binding PollingNote}" HorizontalAlignment="Right" Margin="0,2,0,0"/>
+                        </StackPanel>
+                      </Grid>
+
+                      <!-- analog engine -->
+                      <StackPanel Visibility="{Binding HasAnalog, Converter={StaticResource BoolToVis}}" Margin="0,14,0,0">
+                        <Border BorderBrush="#1FFFFFFF" BorderThickness="0,1,0,0" Margin="0,0,0,10"/>
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding AnalogEnabled, Mode=TwoWay}" VerticalAlignment="Center">
+                          <StackPanel>
+                            <TextBlock Text="Analog engine — adjustable actuation" FontSize="12"/>
+                            <TextBlock Style="{StaticResource Muted}" Text="{Binding AnalogStatus}" TextWrapping="Wrap"/>
+                          </StackPanel>
+                        </CheckBox>
+                        <Grid Margin="0,10,0,0">
+                          <Grid.ColumnDefinitions><ColumnDefinition Width="96"/><ColumnDefinition Width="*"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+                          <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                          <TextBlock Text="Actuation" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                          <Slider Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="0.3" Maximum="3.8" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="{Binding MakeMm, Mode=TwoWay}"/>
+                          <TextBlock Grid.Column="2" Text="{Binding MakeText}" Style="{StaticResource Mono}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                          <TextBlock Grid.Row="1" Text="Reset" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,6,0,0"/>
+                          <Slider Grid.Row="1" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="0.2" Maximum="3.7" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="{Binding BreakMm, Mode=TwoWay}" Margin="0,6,0,0"/>
+                          <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding BreakText}" Style="{StaticResource Mono}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,6,0,0"/>
+                          <CheckBox Grid.Row="2" Style="{StaticResource Switch}" IsChecked="{Binding RapidTrigger, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,8,0,0">
+                            <TextBlock Text="Rapid trigger" FontSize="12"/>
+                          </CheckBox>
+                          <Slider Grid.Row="2" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="0.1" Maximum="1.5" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="{Binding RapidTriggerMm, Mode=TwoWay}" IsEnabled="{Binding RapidTrigger}" Margin="0,8,0,0"/>
+                          <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding RapidTriggerText}" Style="{StaticResource Mono}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                        </Grid>
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding BlockWindowsKey, Mode=TwoWay}" Margin="0,8,0,0">
+                          <TextBlock Text="Block the Windows key while the engine runs" FontSize="12"/>
+                        </CheckBox>
+                        <TextBlock Style="{StaticResource Muted}" Text="Per-key overrides, one line each: key names = actuation / reset in mm, e.g.  W A S D = 1.0 / 0.7" TextWrapping="Wrap" Margin="0,10,0,4"/>
+                        <TextBox Text="{Binding Overrides, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" AcceptsReturn="True" MinHeight="46" FontFamily="{StaticResource MonoFont}" FontSize="12"
+                                 Background="#0C1014" Foreground="#D6DEE6" CaretBrush="#D6DEE6" BorderBrush="#2A3440" BorderThickness="1" Padding="6,4" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/>
+                        <TextBlock Style="{StaticResource Muted}" Text="{Binding AnalogNote}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+
+                        <!-- typo guard -->
+                        <Border BorderBrush="#1FFFFFFF" BorderThickness="0,1,0,0" Margin="0,12,0,10"/>
+                        <Grid>
+                          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                          <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Adaptive, Mode=TwoWay}" VerticalAlignment="Center">
+                            <TextBlock Text="Typo guard — ignore unusually shallow presses" FontSize="12"/>
+                          </CheckBox>
+                          <Slider Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="5" Maximum="90" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding AdaptivePercent, Mode=TwoWay}" IsEnabled="{Binding Adaptive}" VerticalAlignment="Center"/>
+                          <TextBlock Grid.Column="2" Text="{Binding AdaptiveText}" Style="{StaticResource Mono}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Muted}" Text="{Binding AdaptiveNote}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                        <!-- controller mode -->
+                        <Border BorderBrush="#1FFFFFFF" BorderThickness="0,1,0,0" Margin="0,12,0,10"/>
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding Joystick, Mode=TwoWay}" VerticalAlignment="Center">
+                          <TextBlock Text="Controller mode — movement keys become an analog stick" FontSize="12"/>
+                        </CheckBox>
+                        <Grid Margin="0,10,0,0" IsEnabled="{Binding Joystick}">
+                          <Grid.ColumnDefinitions><ColumnDefinition Width="96"/><ColumnDefinition Width="*"/><ColumnDefinition Width="64"/></Grid.ColumnDefinitions>
+                          <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                          <TextBlock Text="Stick keys" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                          <TextBox Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding JoystickKeys, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" FontFamily="{StaticResource MonoFont}" FontSize="12" Height="26"
+                                   Background="#0C1014" Foreground="#D6DEE6" CaretBrush="#D6DEE6" BorderBrush="#2A3440" BorderThickness="1" Padding="6,3" ToolTip="up left down right"/>
+                          <TextBlock Grid.Row="1" Text="Dead zone" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,6,0,0"/>
+                          <Slider Grid.Row="1" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="0.1" Maximum="1.5" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="{Binding JoystickDeadzoneMm, Mode=TwoWay}" Margin="0,6,0,0"/>
+                          <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding JoystickDeadzoneText}" Style="{StaticResource Mono}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,6,0,0"/>
+                          <TextBlock Grid.Row="2" Text="Full tilt at" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,6,0,0"/>
+                          <Slider Grid.Row="2" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="1.0" Maximum="3.9" TickFrequency="0.1" IsSnapToTickEnabled="True" Value="{Binding JoystickFullMm, Mode=TwoWay}" Margin="0,6,0,0"/>
+                          <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding JoystickFullText}" Style="{StaticResource Mono}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,6,0,0"/>
+                        </Grid>
+                        <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding JoystickKeysAlsoType, Mode=TwoWay}" IsEnabled="{Binding Joystick}" Margin="0,8,0,0">
+                          <TextBlock Text="Stick keys also type their letters" FontSize="12"/>
+                        </CheckBox>
+                        <TextBlock Style="{StaticResource Muted}" Text="Buttons (optional): key = button, comma separated" Margin="0,8,0,4"/>
+                        <TextBox Text="{Binding JoystickButtons, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding Joystick}" FontFamily="{StaticResource MonoFont}" FontSize="12" Height="26"
+                                 Background="#0C1014" Foreground="#D6DEE6" CaretBrush="#D6DEE6" BorderBrush="#2A3440" BorderThickness="1" Padding="6,3"/>
+                        <TextBlock Style="{StaticResource Muted}" Text="{Binding JoystickNote}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                      </StackPanel>
+                    </StackPanel>
+
+                    <!-- device that never answers: blind writes -->
+                    <StackPanel Visibility="{Binding Experimental, Converter={StaticResource BoolToVis}}" Margin="0,10,0,0">
+                      <TextBlock Style="{StaticResource Muted}" Text="{Binding Notes}"/>
+                      <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Style="{StaticResource QuietButton}" Height="28" Content="Try static white" Command="{Binding BlindCommand}" CommandParameter="Static" Margin="0,0,6,0"/>
+                        <Button Style="{StaticResource QuietButton}" Height="28" Content="Try spectrum" Command="{Binding BlindCommand}" CommandParameter="Spectrum" Margin="0,0,6,0"/>
+                        <Button Style="{StaticResource QuietButton}" Height="28" Content="Try off" Command="{Binding BlindCommand}" CommandParameter="Off"/>
+                      </StackPanel>
+                    </StackPanel>
+
+                    <!-- inventory only / blade -->
+                    <TextBlock Style="{StaticResource Muted}" Text="{Binding Notes}" Margin="0,8,0,0" Visibility="{Binding InventoryOnly, Converter={StaticResource BoolToVis}}"/>
+                    <TextBlock Style="{StaticResource Muted}" Text="Fan, power and keyboard lighting for the laptop are on the Blade view." Margin="0,8,0,0" Visibility="{Binding IsBlade, Converter={StaticResource BoolToVis}}"/>
+
+                    <!-- last result -->
+                    <TextBlock Text="{Binding LastResult}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                          <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding LastResult}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                            <DataTrigger Binding="{Binding LastKind}" Value="ok"><Setter Property="Foreground" Value="{StaticResource OkBrush}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding LastKind}" Value="warn"><Setter Property="Foreground" Value="{StaticResource WarnBrush}"/></DataTrigger>
+                            <DataTrigger Binding="{Binding LastKind}" Value="bad"><Setter Property="Foreground" Value="{StaticResource BadBrush}"/></DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </TextBlock.Style>
+                    </TextBlock>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <!-- ===== BLADE view ===== -->
+        <StackPanel Visibility="{Binding IsBladeView, Converter={StaticResource BoolToVis}}">
+
+          <!-- power (2.7.0): where the watts come from and what is holding the CPU / GPU back -->
+          <power:PowerCard DataContext="{Binding Power}"/>
+
+          <!-- performance -->
+          <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+            <StackPanel>
+              <Grid Margin="0,0,0,12">
+                <TextBlock Style="{StaticResource Label}" Text="Performance"/>
+                <TextBlock Style="{StaticResource Muted}" Text="{Binding ModeDeviceText}" HorizontalAlignment="Right"/>
+              </Grid>
+              <Border Style="{StaticResource SegmentedHost}" IsEnabled="{Binding Connected}">
+                <UniformGrid Rows="1">
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Balanced" GroupName="perf" IsChecked="{Binding IsBalanced, Mode=OneWay}" Command="{Binding SetBalancedCommand}"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Gaming" GroupName="perf" IsChecked="{Binding IsGaming, Mode=OneWay}" Command="{Binding SetGamingCommand}"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Creator" GroupName="perf" IsChecked="{Binding IsCreator, Mode=OneWay}" Command="{Binding SetCreatorCommand}"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Custom" GroupName="perf" IsChecked="{Binding IsCustom, Mode=OneWay}" Command="{Binding SetCustomCommand}"/>
+                </UniformGrid>
+              </Border>
+              <StackPanel Visibility="{Binding ShowBoost, Converter={StaticResource BoolToVis}}" Margin="0,12,0,0" IsEnabled="{Binding Connected}">
+                <Grid Margin="0,0,0,6">
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                  <TextBlock Text="CPU" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                  <Border Grid.Column="1" Style="{StaticResource SegmentedHost}">
+                    <UniformGrid Rows="1">
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Low" GroupName="cpuboost" IsChecked="{Binding IsCpu0, Mode=OneWay}" Command="{Binding SetCpuBoostCommand}" CommandParameter="0"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Medium" GroupName="cpuboost" IsChecked="{Binding IsCpu1, Mode=OneWay}" Command="{Binding SetCpuBoostCommand}" CommandParameter="1"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="High" GroupName="cpuboost" IsChecked="{Binding IsCpu2, Mode=OneWay}" Command="{Binding SetCpuBoostCommand}" CommandParameter="2"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Boost" GroupName="cpuboost" IsChecked="{Binding IsCpu3, Mode=OneWay}" Command="{Binding SetCpuBoostCommand}" CommandParameter="3"/>
+                    </UniformGrid>
+                  </Border>
+                </Grid>
+                <Grid>
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                  <TextBlock Text="GPU" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                  <Border Grid.Column="1" Style="{StaticResource SegmentedHost}">
+                    <UniformGrid Rows="1">
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Low" GroupName="gpuboost" IsChecked="{Binding IsGpu0, Mode=OneWay}" Command="{Binding SetGpuBoostCommand}" CommandParameter="0"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Medium" GroupName="gpuboost" IsChecked="{Binding IsGpu1, Mode=OneWay}" Command="{Binding SetGpuBoostCommand}" CommandParameter="1"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="High" GroupName="gpuboost" IsChecked="{Binding IsGpu2, Mode=OneWay}" Command="{Binding SetGpuBoostCommand}" CommandParameter="2"/>
+                    </UniformGrid>
+                  </Border>
+                </Grid>
+                <Grid Margin="0,8,0,0">
+                  <TextBlock Style="{StaticResource Muted}" Text="{Binding BoostNote}" Margin="0,0,0,0" TextWrapping="Wrap"/>
+                </Grid>
+                <TextBlock Style="{StaticResource Muted}" Text="{Binding BoostDeviceText}" HorizontalAlignment="Right" Margin="0,4,0,0"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <!-- fan -->
+          <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+            <StackPanel>
+              <Grid Margin="0,0,0,12">
+                <TextBlock Style="{StaticResource Label}" Text="Fan"/>
+                <TextBlock Style="{StaticResource Muted}" Text="{Binding FanSubText}" HorizontalAlignment="Right"/>
+              </Grid>
+              <Border Style="{StaticResource SegmentedHost}" IsEnabled="{Binding Connected}">
+                <UniformGrid Rows="1">
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Automatic" GroupName="fan" IsChecked="{Binding FanAutoSelected, Mode=OneWay}" Command="{Binding FanAutoCommand}"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Manual floor" GroupName="fan" IsChecked="{Binding FanManualSelected, Mode=OneWay}" Command="{Binding FanManualCommand}"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Hold temperature" GroupName="fan" IsChecked="{Binding FanTargetSelected, Mode=OneWay}" Command="{Binding FanTargetCommand}"/>
+                </UniformGrid>
+              </Border>
+
+              <!-- hold temperature -->
+              <StackPanel Visibility="{Binding FanTargetSelected, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding TargetEnabled}">
+                <Grid Margin="0,14,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="72"/>
+                  </Grid.ColumnDefinitions>
+                  <Border Style="{StaticResource SegmentedHost}" Padding="3" Margin="0,0,12,0">
+                    <StackPanel Orientation="Horizontal">
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Hottest" IsChecked="{Binding IsSensorHottest, Mode=OneWay}" Command="{Binding SetTargetSensorCommand}" CommandParameter="Hottest"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="CPU" IsChecked="{Binding IsSensorCpu, Mode=OneWay}" Command="{Binding SetTargetSensorCommand}" CommandParameter="CPU"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="GPU" IsChecked="{Binding IsSensorGpu, Mode=OneWay}" Command="{Binding SetTargetSensorCommand}" CommandParameter="GPU"/>
+                    </StackPanel>
+                  </Border>
+                  <TextBlock Grid.Column="1" Text="55" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                  <Slider Grid.Column="2" Style="{StaticResource AccentSlider}" Minimum="55" Maximum="90" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding TargetTempC, Mode=TwoWay}"/>
+                  <TextBlock Grid.Column="3" Text="90" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                  <TextBlock Grid.Column="4" Text="{Binding TargetTempText}" Style="{StaticResource Mono}" FontSize="15" FontWeight="Medium" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                </Grid>
+                <Grid Margin="0,12,0,0">
+                  <TextBlock Style="{StaticResource Muted}" Text="{Binding TargetStatus}" VerticalAlignment="Center" Margin="0,0,200,0"/>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource QuietButton}" Content="Disarm" Command="{Binding DisarmTargetCommand}" Margin="0,0,6,0" Visibility="{Binding TargetArmed, Converter={StaticResource BoolToVis}}"/>
+                    <Button Style="{StaticResource AccentButton}" Content="Engage" Command="{Binding EngageTargetCommand}"/>
+                  </StackPanel>
+                </Grid>
+                <TextBlock Style="{StaticResource Muted}" Text="{Binding TargetNote}" Margin="0,12,0,0"/>
+              </StackPanel>
+
+              <StackPanel Visibility="{Binding ManualBlockVisible, Converter={StaticResource BoolToVis}}">
+              <Grid Margin="0,14,0,0" IsEnabled="{Binding FloorEnabled}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="40"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="40"/>
+                  <ColumnDefinition Width="92"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="3500" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                <Slider x:Name="FloorSlider" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="3500" Maximum="5000" TickFrequency="100" IsSnapToTickEnabled="True"
+                        Value="{Binding FloorRpm, Mode=TwoWay}" Thumb.DragStarted="Floor_DragStarted" Thumb.DragCompleted="Floor_DragCompleted"/>
+                <TextBlock Grid.Column="2" Text="5000" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <TextBlock Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center">
+                  <Run Text="{Binding FloorText, Mode=OneWay}" FontFamily="{StaticResource MonoFont}" FontSize="15" FontWeight="Medium"/>
+                  <Run Text=" RPM" FontSize="11" Foreground="{StaticResource Text3Brush}"/>
+                </TextBlock>
+              </Grid>
+              <Grid Margin="0,12,0,0">
+                <StackPanel Orientation="Horizontal" IsEnabled="{Binding Connected}">
+                  <Button Style="{StaticResource PresetButton}" Content="3500" Command="{Binding PresetCommand}" CommandParameter="3500" Margin="0,0,6,0"/>
+                  <Button Style="{StaticResource PresetButton}" Content="4000" Command="{Binding PresetCommand}" CommandParameter="4000" Margin="0,0,6,0"/>
+                  <Button Style="{StaticResource PresetButton}" Content="4500" Command="{Binding PresetCommand}" CommandParameter="4500" Margin="0,0,6,0"/>
+                  <Button Style="{StaticResource PresetButton}" Content="5000" Command="{Binding PresetCommand}" CommandParameter="5000"/>
+                </StackPanel>
+                <Button HorizontalAlignment="Right" Content="Apply floor" Command="{Binding ApplyFloorCommand}" IsEnabled="{Binding FloorEnabled}">
+                  <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource QuietButton}">
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding FanManualSelected}" Value="True">
+                          <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                          <Setter Property="Foreground" Value="{StaticResource BgBrush}"/>
+                          <Setter Property="BorderBrush" Value="Transparent"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Button.Style>
+                </Button>
+              </Grid>
+              <TextBlock Style="{StaticResource Muted}" Text="{Binding FanNote}" Margin="0,12,0,0"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <!-- lighting -->
+          <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+            <StackPanel>
+              <Grid Margin="0,0,0,12">
+                <TextBlock Style="{StaticResource Label}" Text="Keyboard lighting"/>
+                <Button HorizontalAlignment="Right" Style="{StaticResource GhostButton}" Height="26" Padding="4,0" Command="{Binding PickColorCommand}" ToolTip="Pick a colour" IsEnabled="{Binding Connected}">
+                  <StackPanel Orientation="Horizontal">
+                    <Border Width="22" Height="22" CornerRadius="6" Background="{Binding ColorBrush}" BorderBrush="#2EFFFFFF" BorderThickness="1"/>
+                    <TextBlock Text="{Binding ColorHex}" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text2Brush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                  </StackPanel>
+                </Button>
+              </Grid>
+              <Border Style="{StaticResource SegmentedHost}" IsEnabled="{Binding Connected}">
+                <UniformGrid Rows="1">
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Off" GroupName="rgb" IsChecked="{Binding IsRgbOff, Mode=OneWay}" Command="{Binding SetRgbCommand}" CommandParameter="Off"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Static" GroupName="rgb" IsChecked="{Binding IsRgbStatic, Mode=OneWay}" Command="{Binding SetRgbCommand}" CommandParameter="Static"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Spectrum" GroupName="rgb" IsChecked="{Binding IsRgbSpectrum, Mode=OneWay}" Command="{Binding SetRgbCommand}" CommandParameter="Spectrum"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Breathing" GroupName="rgb" IsChecked="{Binding IsRgbBreathing, Mode=OneWay}" Command="{Binding SetRgbCommand}" CommandParameter="Breathing"/>
+                </UniformGrid>
+              </Border>
+              <Border Style="{StaticResource SegmentedHost}" IsEnabled="{Binding Connected}" Margin="0,6,0,0">
+                <UniformGrid Rows="1">
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Wave" GroupName="rgb" IsChecked="{Binding IsRgbWave, Mode=OneWay}" Command="{Binding SetRgbCommand}" CommandParameter="Wave"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Reactive" GroupName="rgb" IsChecked="{Binding IsRgbReactive, Mode=OneWay}" Command="{Binding SetRgbCommand}" CommandParameter="Reactive"/>
+                  <RadioButton Style="{StaticResource SegmentedItem}" Content="Starlight" GroupName="rgb" IsChecked="{Binding IsRgbStarlight, Mode=OneWay}" Command="{Binding SetRgbCommand}" CommandParameter="Starlight"/>
+                </UniformGrid>
+              </Border>
+              <Grid Margin="0,10,0,0" IsEnabled="{Binding Connected}" Visibility="{Binding ShowRgbDirection, Converter={StaticResource BoolToVis}}">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Text="Direction" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                <Border Grid.Column="1" Style="{StaticResource SegmentedHost}">
+                  <UniformGrid Rows="1">
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Left to right" GroupName="rgbdir" IsChecked="{Binding IsDirLtr, Mode=OneWay}" Command="{Binding SetRgbDirectionCommand}" CommandParameter="1"/>
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Right to left" GroupName="rgbdir" IsChecked="{Binding IsDirRtl, Mode=OneWay}" Command="{Binding SetRgbDirectionCommand}" CommandParameter="2"/>
+                  </UniformGrid>
+                </Border>
+              </Grid>
+              <Grid Margin="0,10,0,0" IsEnabled="{Binding Connected}" Visibility="{Binding ShowRgbSpeed, Converter={StaticResource BoolToVis}}">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock Text="Speed" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                <Border Grid.Column="1" Style="{StaticResource SegmentedHost}">
+                  <UniformGrid Rows="1">
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Fast" GroupName="rgbspeed" IsChecked="{Binding IsSpeed1, Mode=OneWay}" Command="{Binding SetRgbSpeedCommand}" CommandParameter="1"/>
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Medium" GroupName="rgbspeed" IsChecked="{Binding IsSpeed2, Mode=OneWay}" Command="{Binding SetRgbSpeedCommand}" CommandParameter="2"/>
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Slow" GroupName="rgbspeed" IsChecked="{Binding IsSpeed3, Mode=OneWay}" Command="{Binding SetRgbSpeedCommand}" CommandParameter="3"/>
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Slowest" GroupName="rgbspeed" IsChecked="{Binding IsSpeed4, Mode=OneWay}" Command="{Binding SetRgbSpeedCommand}" CommandParameter="4" Visibility="{Binding ShowRgbSpeed4, Converter={StaticResource BoolToVis}}"/>
+                  </UniformGrid>
+                </Border>
+              </Grid>
+              <Grid Margin="0,12,0,0" IsEnabled="{Binding Connected}">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="70"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBlock Text="Lid logo" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                <Border Grid.Column="1" Style="{StaticResource SegmentedHost}">
+                  <UniformGrid Rows="1">
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Off" GroupName="logo" IsChecked="{Binding IsLogoOff, Mode=OneWay}" Command="{Binding SetLogoCommand}" CommandParameter="Off"/>
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="On" GroupName="logo" IsChecked="{Binding IsLogoOn, Mode=OneWay}" Command="{Binding SetLogoCommand}" CommandParameter="On"/>
+                    <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Blink" GroupName="logo" IsChecked="{Binding IsLogoBlink, Mode=OneWay}" Command="{Binding SetLogoCommand}" CommandParameter="Blink"/>
+                  </UniformGrid>
+                </Border>
+                <TextBlock Grid.Column="2" Style="{StaticResource Muted}" Text="{Binding LogoDeviceText}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+              </Grid>
+              <Grid Margin="0,14,0,0" IsEnabled="{Binding Connected}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="40"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="40"/>
+                  <ColumnDefinition Width="92"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="0" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                <Slider x:Name="BrightSlider" Grid.Column="1" Style="{StaticResource AccentSlider}" Minimum="0" Maximum="255" Value="{Binding Brightness, Mode=TwoWay}"
+                        Thumb.DragStarted="Bright_DragStarted" Thumb.DragCompleted="Bright_DragCompleted" PreviewMouseLeftButtonUp="Bright_MouseUp" PreviewKeyUp="Bright_KeyUp"/>
+                <TextBlock Grid.Column="2" Text="255" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <TextBlock Grid.Column="3" Text="{Binding BrightnessText}" Style="{StaticResource Mono}" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+              </Grid>
+              <Grid Margin="0,12,0,0">
+                <TextBlock Style="{StaticResource Muted}" Text="{Binding LightingNote}" Margin="0,0,150,0"/>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource GhostButton}" Height="26" Content="Dynamic Lighting…" Command="{Binding OpenDynamicLightingCommand}"
+                        ToolTip="Windows Dynamic Lighting also drives these LEDs and will fight BladeCtl. Run only one."/>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <!-- startup & razer -->
+          <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+            <StackPanel>
+              <Grid Margin="0,0,0,12">
+                <TextBlock Style="{StaticResource Label}" Text="Startup &amp; Razer"/>
+                <Button HorizontalAlignment="Right" Style="{StaticResource GhostButton}" Height="26" Content="Close Synapse now" Command="{Binding CloseSynapseNowCommand}"
+                        Visibility="{Binding SynapseRunning, Converter={StaticResource BoolToVis}}"/>
+              </Grid>
+              <UniformGrid Columns="2">
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding StartWithWindows}" Margin="0,0,16,8">
+                  <StackPanel><TextBlock Text="Start with Windows"/><TextBlock Style="{StaticResource Muted}" Text="elevated logon task, no UAC prompt"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding ApplyOnStartup}" Margin="0,0,0,8">
+                  <StackPanel><TextBlock Text="Apply saved settings at logon"/><TextBlock Style="{StaticResource Muted}" Text="power mode, fan, lighting, brightness"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding ShowWindowAtStartup}" Margin="0,0,16,8">
+                  <StackPanel><TextBlock Text="Show this window at logon"/><TextBlock Style="{StaticResource Muted}" Text="off: tray icon only"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding BlockSynapseAutostart}" Margin="0,0,0,8">
+                  <StackPanel><TextBlock Text="Keep Synapse from starting with Windows"/><TextBlock Style="{StaticResource Muted}" Text="strips its Run entry at logon and whenever it comes back"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding CloseSynapseAtStartup}" Margin="0,0,16,0">
+                  <StackPanel><TextBlock Text="Close Synapse if it is running at logon"/><TextBlock Style="{StaticResource Muted}" Text="off by default: killing it can blip a Razer keyboard"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding VerboseLog}" Margin="0,0,0,8">
+                  <StackPanel><TextBlock Text="Verbose logging"/><TextBlock Style="{StaticResource Muted}" Text="every HID transaction"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding BootLightingTask}" Margin="0,0,16,0">
+                  <StackPanel><TextBlock Text="Apply lighting before sign-in"/><TextBlock Style="{StaticResource Muted}" Text="system task at boot, no user needed"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding BladeNormalMode}" Margin="0,0,0,8">
+                  <StackPanel><TextBlock Text="Blade: normal mode before lighting"/><TextBlock Style="{StaticResource Muted}" Text="experiment from the colour test"/></StackPanel>
+                </CheckBox>
+                <CheckBox Style="{StaticResource Switch}" IsChecked="{Binding LightsOffWhenLocked}" Margin="0,0,16,0">
+                  <StackPanel><TextBlock Text="Lights off while locked"/><TextBlock Style="{StaticResource Muted}" Text="Blade and every accessory; back on at unlock"/></StackPanel>
+                </CheckBox>
+                <StackPanel>
+                  <TextBlock Text="Lights off when idle"/>
+                  <Border Style="{StaticResource SegmentedHost}" Margin="0,4,0,0">
+                    <UniformGrid Rows="1">
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="Never" GroupName="idle" IsChecked="{Binding IsIdle0, Mode=OneWay}" Command="{Binding SetIdleOffCommand}" CommandParameter="0"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="5 min" GroupName="idle" IsChecked="{Binding IsIdle5, Mode=OneWay}" Command="{Binding SetIdleOffCommand}" CommandParameter="5"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="15 min" GroupName="idle" IsChecked="{Binding IsIdle15, Mode=OneWay}" Command="{Binding SetIdleOffCommand}" CommandParameter="15"/>
+                      <RadioButton Style="{StaticResource SegmentedItemSmall}" Content="30 min" GroupName="idle" IsChecked="{Binding IsIdle30, Mode=OneWay}" Command="{Binding SetIdleOffCommand}" CommandParameter="30"/>
+                    </UniformGrid>
+                  </Border>
+                </StackPanel>
+              </UniformGrid>
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+        </Grid>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- ===== activity ===== -->
+    <Border Grid.Row="3" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="20,10,20,12">
+      <StackPanel>
+        <Grid Margin="0,0,0,6">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Style="{StaticResource Label}" Text="Activity" VerticalAlignment="Center"/>
+            <Ellipse Width="6" Height="6" Margin="12,0,6,0" VerticalAlignment="Center">
+              <Ellipse.Style>
+                <Style TargetType="Ellipse">
+                  <Setter Property="Fill" Value="{StaticResource Text3Brush}"/>
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding StatusKind}" Value="ok"><Setter Property="Fill" Value="{StaticResource OkBrush}"/></DataTrigger>
+                    <DataTrigger Binding="{Binding StatusKind}" Value="warn"><Setter Property="Fill" Value="{StaticResource WarnBrush}"/></DataTrigger>
+                    <DataTrigger Binding="{Binding StatusKind}" Value="bad"><Setter Property="Fill" Value="{StaticResource BadBrush}"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Ellipse.Style>
+            </Ellipse>
+            <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="{StaticResource Text2Brush}" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" MaxWidth="480"/>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{StaticResource GhostButton}" Height="26" Content="Open log" Command="{Binding OpenLogCommand}"/>
+            <Button Style="{StaticResource GhostButton}" Height="26" Content="Copy diagnostics" Command="{Binding CopyDiagnosticsCommand}"/>
+          </StackPanel>
+        </Grid>
+        <ItemsControl ItemsSource="{Binding Activity}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid Height="21">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="16"/>
+                  <ColumnDefinition Width="70"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Ellipse Style="{StaticResource Dot}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="1" Text="{Binding Time}" Style="{StaticResource Mono}" FontSize="12" Foreground="{StaticResource Text3Brush}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="{Binding Message}" FontSize="12" Foreground="{StaticResource Text2Brush}" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding Message}"/>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- ===== overlay dialog ===== -->
+    <Grid Grid.RowSpan="4" Background="{StaticResource ScrimBrush}" Visibility="{Binding OverlayVisible, Converter={StaticResource BoolToVis}}">
+      <Border Width="440" Background="{StaticResource Panel2Brush}" CornerRadius="14" BorderBrush="{StaticResource LineStrongBrush}" BorderThickness="1" Padding="24,22" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Border.Effect><DropShadowEffect BlurRadius="40" ShadowDepth="12" Opacity="0.6"/></Border.Effect>
+        <StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Border Width="32" Height="32" CornerRadius="8" VerticalAlignment="Top">
+              <Border.Style>
+                <Style TargetType="Border">
+                  <Setter Property="Background" Value="{StaticResource AccentDimBrush}"/>
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding OverlayKind}" Value="warn"><Setter Property="Background" Value="{StaticResource WarnDimBrush}"/></DataTrigger>
+                    <DataTrigger Binding="{Binding OverlayKind}" Value="bad"><Setter Property="Background" Value="{StaticResource BadDimBrush}"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Border.Style>
+              <Path Width="18" Height="18" Stretch="Uniform" StrokeThickness="1.75" StrokeLineJoin="Round" Data="M12 4l9 16H3l9-16z M12 10v4 M12 17h.01">
+                <Path.Style>
+                  <Style TargetType="Path">
+                    <Setter Property="Stroke" Value="{StaticResource AccentBrush}"/>
+                    <Setter Property="Data" Value="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 11v5 M12 8h.01"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding OverlayKind}" Value="warn"><Setter Property="Stroke" Value="{StaticResource WarnBrush}"/><Setter Property="Data" Value="M12 4l9 16H3l9-16z M12 10v4 M12 17h.01"/></DataTrigger>
+                      <DataTrigger Binding="{Binding OverlayKind}" Value="bad"><Setter Property="Stroke" Value="{StaticResource BadBrush}"/><Setter Property="Data" Value="M12 4l9 16H3l9-16z M12 10v4 M12 17h.01"/></DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Path.Style>
+              </Path>
+            </Border>
+            <TextBlock Text="{Binding OverlayTitle}" FontFamily="{StaticResource HeadFont}" FontSize="16" FontWeight="Bold" Margin="12,0,0,0" VerticalAlignment="Center" MaxWidth="340"/>
+          </StackPanel>
+          <TextBlock Text="{Binding OverlayBody}" Foreground="{StaticResource Text2Brush}" LineHeight="20"/>
+          <Border Background="{StaticResource PanelBrush}" CornerRadius="10" Padding="14,10" Margin="0,14,0,0" Visibility="{Binding OverlayHasBullets, Converter={StaticResource BoolToVis}}">
+            <ItemsControl ItemsSource="{Binding OverlayBullets}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid Margin="0,3">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Ellipse Style="{StaticResource Dot}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="1,0,0,0"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Text}" FontSize="12" Foreground="{StaticResource Text2Brush}"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Border>
+          <ItemsControl ItemsSource="{Binding OverlaySwatches}" Margin="0,14,0,0" Visibility="{Binding OverlayIsColor, Converter={StaticResource BoolToVis}}">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button Command="{Binding Pick}" Style="{StaticResource GhostButton}" Width="40" Height="40" Padding="0" ToolTip="{Binding Hex}">
+                  <Border Width="30" Height="30" CornerRadius="8" Background="{Binding Brush}" BorderBrush="#2EFFFFFF" BorderThickness="1"/>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <ItemsControl ItemsSource="{Binding OverlayButtons}" Margin="0,18,0,0" HorizontalAlignment="Right">
+            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button Content="{Binding Text}" Command="{Binding Command}" Margin="8,0,0,0">
+                  <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource QuietButton}">
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding Kind}" Value="primary">
+                          <Setter Property="Background" Value="{StaticResource AccentBrush}"/><Setter Property="Foreground" Value="{StaticResource BgBrush}"/><Setter Property="BorderBrush" Value="Transparent"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Kind}" Value="danger">
+                          <Setter Property="Background" Value="{StaticResource BadBrush}"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderBrush" Value="Transparent"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Kind}" Value="ghost">
+                          <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="{StaticResource Text2Brush}"/><Setter Property="BorderBrush" Value="Transparent"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Button.Style>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

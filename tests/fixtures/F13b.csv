@@ -1,0 +1,5 @@
+# F13b: F13 with reasons 0x24: bit 0x20 (whose duration counter is field 269) set next to 0x4 while 269 mirrors 74 -> still FULL_POWER, never THERMAL (delta D1)
+#expect-final FULL_POWER
+#expect-never THERMAL
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,class,adapterw
+30,1,0,,96,98,90,91,80,105,0.6,,0.6,,,0x24,70,,1500,15000,0x5,70,barrel,230

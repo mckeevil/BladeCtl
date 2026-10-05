@@ -1,0 +1,5 @@
+# F13: AC, U 98, P 90, L 91, duty74 0.6 = duty269 0.6 (field 269 mirrors 74 on driver 616.64), T 70 -> FULL_POWER, never THERMAL (delta D1)
+#expect-final FULL_POWER
+#expect-never THERMAL
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,class,adapterw
+30,1,0,,96,98,90,91,80,105,0.6,,0.6,,,0x4,70,,1500,15000,0x5,70,barrel,230

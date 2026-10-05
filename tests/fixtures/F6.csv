@@ -1,0 +1,11 @@
+# F6: AC, Rate -9000 mW for 40 s -> CHARGER_LIMITED (30 s draining + 6 s to enter)
+# Columns: dur = seconds this row lasts (2 s ticks); ac 1/0; d = D-state number (0 = D0, 3 = D3); display = a monitor on the dGPU;
+# pdh = dGPU busy % from PDH; util/p/l/ldef/lmax = NVML utilisation, power W, enforced/default/max limit W (only seen when the gate is open);
+# cap74/low78/sw269/hw270/brake271 = counter duty 0..1; reasons = clock-event bits; rate = battery mW (+ charging); batstate = PowerState flags;
+# fg/fggpu/fgcores/pkg/freq = foreground app, its GPU (1 Intel, 2 NVIDIA), cores busy, CPU package W, MHz; holders = Name:bytes:busy[:docked]|...
+#expect-by CHARGER_LIMITED 38
+#expect-final CHARGER_LIMITED
+#expect-tooltip Charger can't keep up
+#expect-tooltip draining 9 W
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq,holders
+40,1,0,,60,70,55,80,80,105,0.1,,,,,0x0,70,,1300,-9000,0x3,60,,,,,,

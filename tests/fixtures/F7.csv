@@ -1,0 +1,10 @@
+# F7: duty270 = 0.03 -> THERMAL within 4 s (starts at t=10)
+# Columns: dur = seconds this row lasts (2 s ticks); ac 1/0; d = D-state number (0 = D0, 3 = D3); display = a monitor on the dGPU;
+# pdh = dGPU busy % from PDH; util/p/l/ldef/lmax = NVML utilisation, power W, enforced/default/max limit W (only seen when the gate is open);
+# cap74/low78/sw269/hw270/brake271 = counter duty 0..1; reasons = clock-event bits; rate = battery mW (+ charging); batstate = PowerState flags;
+# fg/fggpu/fgcores/pkg/freq = foreground app, its GPU (1 Intel, 2 NVIDIA), cores busy, CPU package W, MHz; holders = Name:bytes:busy[:docked]|...
+#expect-by THERMAL 14
+#expect-final THERMAL
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq,holders
+10,1,0,,95,97,92,93,80,105,0.9,,,,,0x4,80,,1440,10000,0x5,60,,,,,,
+10,1,0,,95,97,88,93,80,105,0.6,,,0.03,,0x44,90,,1200,10000,0x5,60,,,,,,

@@ -1,0 +1,14 @@
+# F1: AC, P 28-35 W, L 80.4, duty74 0.045, U 3-31%, reasons 0x1 (today's docked numbers) -> LIGHT, never amber
+# Columns: dur = seconds this row lasts (2 s ticks); ac 1/0; d = D-state number (0 = D0, 3 = D3); display = a monitor on the dGPU;
+# pdh = dGPU busy % from PDH; util/p/l/ldef/lmax = NVML utilisation, power W, enforced/default/max limit W (only seen when the gate is open);
+# cap74/low78/sw269/hw270/brake271 = counter duty 0..1; reasons = clock-event bits; rate = battery mW (+ charging); batstate = PowerState flags;
+# fg/fggpu/fgcores/pkg/freq = foreground app, its GPU (1 Intel, 2 NVIDIA), cores busy, CPU package W, MHz; holders = Name:bytes:busy[:docked]|...
+#expect-always LIGHT
+#expect-never BATTERY_LIMITED,CPU_LIMITED_BATTERY,LIMITED_ON_AC,CHARGER_LIMITED,THERMAL,KEPT_AWAKE
+#expect-tooltip kept awake by the LG ultrawide (on NVIDIA)
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq,holders
+10,1,0,1,8,3,28,80.4,80,105,0.045,,,,,0x1,52,,600,0,0x1,100,,,,,,
+10,1,0,1,20,31,35,80.4,80,105,0.045,,,,,0x1,55,,1200,0,0x1,100,,,,,,
+10,1,0,1,12,15,31,80.4,80,105,0.045,,,,,0x1,54,,900,0,0x1,100,,,,,,
+10,1,0,1,5,8,29,80.4,80,105,0.045,,,,,0x1,53,,700,0,0x1,100,,,,,,
+20,1,0,1,25,31,34,80.4,80,105,0.045,,,,,0x1,56,,1300,0,0x1,100,,,,,,

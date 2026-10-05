@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HidSharp" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Synapse's analog key-id table for the Huntsman V2 Analog (extracted 2026-09-05). -->
+    <EmbeddedResource Include="huntsman-analog-keys.json" LogicalName="BladeCtl.Core.huntsman-analog-keys.json" />
+  </ItemGroup>
+
+</Project>

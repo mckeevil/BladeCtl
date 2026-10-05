@@ -1,0 +1,9 @@
+# F18: DC, battery profile engaged, U 97, L 35, P 34.6, duty74 0.92, Lref 93 -> BATTERY_LIMITED (Power) + profile clause + the full-power button
+#learned lac=93
+#expect-by BATTERY_LIMITED 16
+#expect-final BATTERY_LIMITED
+#expect-action Your battery profile holds it at GPU Low.
+#expect-button Full power until I plug in
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,profile
+10,1,0,,95,97,92,93,80,105,0.9,,,,,0x4,74,,1440,20000,0x5,70,0
+20,0,0,,95,97,34.6,35,80,105,0.92,,,,,0x4,66,1,1010,-60000,0x2,70,1

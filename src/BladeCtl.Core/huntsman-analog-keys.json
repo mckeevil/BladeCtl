@@ -1,0 +1,882 @@
+[
+ {
+  "name": "`",
+  "inputID": "KEY_TILDE",
+  "type": "Symbols",
+  "scancode": 41,
+  "analogKeyID": 1,
+  "hid": 53
+ },
+ {
+  "name": "1",
+  "inputID": "KEY_1",
+  "type": "Alphanumeric",
+  "scancode": 2,
+  "analogKeyID": 2,
+  "hid": 30
+ },
+ {
+  "name": "2",
+  "inputID": "KEY_2",
+  "type": "Alphanumeric",
+  "scancode": 3,
+  "analogKeyID": 3,
+  "hid": 31
+ },
+ {
+  "name": "3",
+  "inputID": "KEY_3",
+  "type": "Alphanumeric",
+  "scancode": 4,
+  "analogKeyID": 4,
+  "hid": 32
+ },
+ {
+  "name": "4",
+  "inputID": "KEY_4",
+  "type": "Alphanumeric",
+  "scancode": 5,
+  "analogKeyID": 5,
+  "hid": 33
+ },
+ {
+  "name": "5",
+  "inputID": "KEY_5",
+  "type": "Alphanumeric",
+  "scancode": 6,
+  "analogKeyID": 6,
+  "hid": 34
+ },
+ {
+  "name": "6",
+  "inputID": "KEY_6",
+  "type": "Alphanumeric",
+  "scancode": 7,
+  "analogKeyID": 7,
+  "hid": 35
+ },
+ {
+  "name": "7",
+  "inputID": "KEY_7",
+  "type": "Alphanumeric",
+  "scancode": 8,
+  "analogKeyID": 8,
+  "hid": 36
+ },
+ {
+  "name": "8",
+  "inputID": "KEY_8",
+  "type": "Alphanumeric",
+  "scancode": 9,
+  "analogKeyID": 9,
+  "hid": 37
+ },
+ {
+  "name": "9",
+  "inputID": "KEY_9",
+  "type": "Alphanumeric",
+  "scancode": 10,
+  "analogKeyID": 10,
+  "hid": 38
+ },
+ {
+  "name": "0",
+  "inputID": "KEY_0",
+  "type": "Alphanumeric",
+  "scancode": 11,
+  "analogKeyID": 11,
+  "hid": 39
+ },
+ {
+  "name": "-",
+  "inputID": "KEY_HYPEN",
+  "type": "Symbols",
+  "scancode": 12,
+  "analogKeyID": 12,
+  "hid": 45
+ },
+ {
+  "name": "=",
+  "inputID": "KEY_EQUAL",
+  "type": "Symbols",
+  "scancode": 13,
+  "analogKeyID": 13,
+  "hid": 46
+ },
+ {
+  "name": "KEY_YEN",
+  "inputID": "KEY_YEN",
+  "type": "",
+  "scancode": 125,
+  "analogKeyID": 14,
+  "hid": 137
+ },
+ {
+  "name": "Backspace",
+  "inputID": "KEY_BACKSPACE",
+  "type": "Navigation",
+  "scancode": 14,
+  "analogKeyID": 15,
+  "hid": 42
+ },
+ {
+  "name": "Tab",
+  "inputID": "KEY_TAB",
+  "type": "Navigation",
+  "scancode": 15,
+  "analogKeyID": 16,
+  "hid": 43
+ },
+ {
+  "name": "Q",
+  "inputID": "KEY_Q",
+  "type": "Alphanumeric",
+  "scancode": 16,
+  "analogKeyID": 17,
+  "hid": 20
+ },
+ {
+  "name": "W",
+  "inputID": "KEY_W",
+  "type": "Alphanumeric",
+  "scancode": 17,
+  "analogKeyID": 18,
+  "hid": 26
+ },
+ {
+  "name": "E",
+  "inputID": "KEY_E",
+  "type": "Alphanumeric",
+  "scancode": 18,
+  "analogKeyID": 19,
+  "hid": 8
+ },
+ {
+  "name": "R",
+  "inputID": "KEY_R",
+  "type": "Alphanumeric",
+  "scancode": 19,
+  "analogKeyID": 20,
+  "hid": 21
+ },
+ {
+  "name": "T",
+  "inputID": "KEY_T",
+  "type": "Alphanumeric",
+  "scancode": 20,
+  "analogKeyID": 21,
+  "hid": 23
+ },
+ {
+  "name": "Y",
+  "inputID": "KEY_Y",
+  "type": "Alphanumeric",
+  "scancode": 21,
+  "analogKeyID": 22,
+  "hid": 28
+ },
+ {
+  "name": "U",
+  "inputID": "KEY_U",
+  "type": "Alphanumeric",
+  "scancode": 22,
+  "analogKeyID": 23,
+  "hid": 24
+ },
+ {
+  "name": "I",
+  "inputID": "KEY_I",
+  "type": "Alphanumeric",
+  "scancode": 23,
+  "analogKeyID": 24,
+  "hid": 12
+ },
+ {
+  "name": "O",
+  "inputID": "KEY_O",
+  "type": "Alphanumeric",
+  "scancode": 24,
+  "analogKeyID": 25,
+  "hid": 18
+ },
+ {
+  "name": "P",
+  "inputID": "KEY_P",
+  "type": "Alphanumeric",
+  "scancode": 25,
+  "analogKeyID": 26,
+  "hid": 19
+ },
+ {
+  "name": "[",
+  "inputID": "KEY_OPEN_SQUARE_BRACKET",
+  "type": "Symbols",
+  "scancode": 26,
+  "analogKeyID": 27,
+  "hid": 47
+ },
+ {
+  "name": "]",
+  "inputID": "KEY_CLOSE_SQUARE_BRACKET",
+  "type": "Symbols",
+  "scancode": 27,
+  "analogKeyID": 28,
+  "hid": 48
+ },
+ {
+  "name": "\\",
+  "inputID": "KEY_BACKSLASH",
+  "type": "Symbols",
+  "scancode": 43,
+  "analogKeyID": 29,
+  "hid": 49
+ },
+ {
+  "name": "Caps Lock",
+  "inputID": "KEY_CAPS_LOCK",
+  "type": "Modifiers",
+  "scancode": 58,
+  "analogKeyID": 30,
+  "hid": 57
+ },
+ {
+  "name": "A",
+  "inputID": "KEY_A",
+  "type": "Alphanumeric",
+  "scancode": 30,
+  "analogKeyID": 31,
+  "hid": 4
+ },
+ {
+  "name": "S",
+  "inputID": "KEY_S",
+  "type": "Alphanumeric",
+  "scancode": 31,
+  "analogKeyID": 32,
+  "hid": 22
+ },
+ {
+  "name": "D",
+  "inputID": "KEY_D",
+  "type": "Alphanumeric",
+  "scancode": 32,
+  "analogKeyID": 33,
+  "hid": 7
+ },
+ {
+  "name": "F",
+  "inputID": "KEY_F",
+  "type": "Alphanumeric",
+  "scancode": 33,
+  "analogKeyID": 34,
+  "hid": 9
+ },
+ {
+  "name": "G",
+  "inputID": "KEY_G",
+  "type": "Alphanumeric",
+  "scancode": 34,
+  "analogKeyID": 35,
+  "hid": 10
+ },
+ {
+  "name": "H",
+  "inputID": "KEY_H",
+  "type": "Alphanumeric",
+  "scancode": 35,
+  "analogKeyID": 36,
+  "hid": 11
+ },
+ {
+  "name": "J",
+  "inputID": "KEY_J",
+  "type": "Alphanumeric",
+  "scancode": 36,
+  "analogKeyID": 37,
+  "hid": 13
+ },
+ {
+  "name": "K",
+  "inputID": "KEY_K",
+  "type": "Alphanumeric",
+  "scancode": 37,
+  "analogKeyID": 38,
+  "hid": 14
+ },
+ {
+  "name": "L",
+  "inputID": "KEY_L",
+  "type": "Alphanumeric",
+  "scancode": 38,
+  "analogKeyID": 39,
+  "hid": 15
+ },
+ {
+  "name": ";",
+  "inputID": "KEY_SEMICOLON",
+  "type": "Symbols",
+  "scancode": 39,
+  "analogKeyID": 40,
+  "hid": 51
+ },
+ {
+  "name": "'",
+  "inputID": "KEY_APOSTROPHE",
+  "type": "Symbols",
+  "scancode": 40,
+  "analogKeyID": 41,
+  "hid": 52
+ },
+ {
+  "name": "#",
+  "inputID": "KEY_NON_US_POUND",
+  "type": "Symbols",
+  "scancode": 43,
+  "analogKeyID": 42,
+  "hid": 50
+ },
+ {
+  "name": "Enter",
+  "inputID": "KEY_ENTER",
+  "type": "Navigation",
+  "scancode": 28,
+  "analogKeyID": 43,
+  "hid": 40
+ },
+ {
+  "name": "Shift",
+  "inputID": "KEY_LEFT_SHIFT",
+  "type": "Modifiers",
+  "scancode": 42,
+  "analogKeyID": 44,
+  "hid": 225
+ },
+ {
+  "name": "\\",
+  "inputID": "KEY_NON_US_BACKSLASH",
+  "type": "",
+  "scancode": 86,
+  "analogKeyID": 45,
+  "hid": 100
+ },
+ {
+  "name": "Z",
+  "inputID": "KEY_Z",
+  "type": "Alphanumeric",
+  "scancode": 44,
+  "analogKeyID": 46,
+  "hid": 29
+ },
+ {
+  "name": "X",
+  "inputID": "KEY_X",
+  "type": "Alphanumeric",
+  "scancode": 45,
+  "analogKeyID": 47,
+  "hid": 27
+ },
+ {
+  "name": "C",
+  "inputID": "KEY_C",
+  "type": "Alphanumeric",
+  "scancode": 46,
+  "analogKeyID": 48,
+  "hid": 6
+ },
+ {
+  "name": "V",
+  "inputID": "KEY_V",
+  "type": "Alphanumeric",
+  "scancode": 47,
+  "analogKeyID": 49,
+  "hid": 25
+ },
+ {
+  "name": "B",
+  "inputID": "KEY_B",
+  "type": "Alphanumeric",
+  "scancode": 48,
+  "analogKeyID": 50,
+  "hid": 5
+ },
+ {
+  "name": "N",
+  "inputID": "KEY_N",
+  "type": "Alphanumeric",
+  "scancode": 49,
+  "analogKeyID": 51,
+  "hid": 17
+ },
+ {
+  "name": "M",
+  "inputID": "KEY_M",
+  "type": "Alphanumeric",
+  "scancode": 50,
+  "analogKeyID": 52,
+  "hid": 16
+ },
+ {
+  "name": ",",
+  "inputID": "KEY_COMMA",
+  "type": "Symbols",
+  "scancode": 51,
+  "analogKeyID": 53,
+  "hid": 54
+ },
+ {
+  "name": ".",
+  "inputID": "KEY_PERIOD",
+  "type": "Symbols",
+  "scancode": 52,
+  "analogKeyID": 54,
+  "hid": 55
+ },
+ {
+  "name": "/",
+  "inputID": "KEY_SLASH",
+  "type": "Symbols",
+  "scancode": 53,
+  "analogKeyID": 55,
+  "hid": 56
+ },
+ {
+  "name": "KEY_BEFORE_LEFT_SHIFT",
+  "inputID": "KEY_RO",
+  "type": "",
+  "scancode": 115,
+  "analogKeyID": 56,
+  "hid": 135
+ },
+ {
+  "name": "Right Shift",
+  "inputID": "KEY_RIGHT_SHIFT",
+  "type": "Modifiers",
+  "scancode": 54,
+  "analogKeyID": 57,
+  "hid": 229
+ },
+ {
+  "name": "Ctrl",
+  "inputID": "KEY_LEFT_CTRL",
+  "type": "Modifiers",
+  "scancode": 29,
+  "analogKeyID": 58,
+  "hid": 224
+ },
+ {
+  "name": "Alt",
+  "inputID": "KEY_LEFT_ALT",
+  "type": "Modifiers",
+  "scancode": 56,
+  "analogKeyID": 60,
+  "hid": 226
+ },
+ {
+  "name": "Space",
+  "inputID": "KEY_SPACEBAR",
+  "type": "Navigation",
+  "scancode": 57,
+  "analogKeyID": 61,
+  "hid": 44
+ },
+ {
+  "name": "Right Alt",
+  "inputID": "KEY_RIGHT_ALT",
+  "type": "Modifiers",
+  "scancode": 56,
+  "analogKeyID": 62,
+  "hid": 230
+ },
+ {
+  "name": "Right Ctrl",
+  "inputID": "KEY_RIGHT_CTRL",
+  "type": "Modifiers",
+  "scancode": 29,
+  "analogKeyID": 64,
+  "hid": 228
+ },
+ {
+  "name": "Insert",
+  "inputID": "KEY_INSERT",
+  "type": "Navigation",
+  "scancode": 82,
+  "analogKeyID": 75,
+  "hid": 73
+ },
+ {
+  "name": "Delete",
+  "inputID": "KEY_DELETE",
+  "type": "Navigation",
+  "scancode": 83,
+  "analogKeyID": 76,
+  "hid": 76
+ },
+ {
+  "name": "Left",
+  "inputID": "KEY_LEFT_ARROW",
+  "type": "Navigation",
+  "scancode": 75,
+  "analogKeyID": 79,
+  "hid": 80
+ },
+ {
+  "name": "Home",
+  "inputID": "KEY_HOME",
+  "type": "Navigation",
+  "scancode": 71,
+  "analogKeyID": 80,
+  "hid": 74
+ },
+ {
+  "name": "End",
+  "inputID": "KEY_END",
+  "type": "Navigation",
+  "scancode": 79,
+  "analogKeyID": 81,
+  "hid": 77
+ },
+ {
+  "name": "Up",
+  "inputID": "KEY_UP_ARROW",
+  "type": "Navigation",
+  "scancode": 72,
+  "analogKeyID": 83,
+  "hid": 82
+ },
+ {
+  "name": "Down",
+  "inputID": "KEY_DOWN_ARROW",
+  "type": "Navigation",
+  "scancode": 80,
+  "analogKeyID": 84,
+  "hid": 81
+ },
+ {
+  "name": "Page Up",
+  "inputID": "KEY_PAGE_UP",
+  "type": "Navigation",
+  "scancode": 73,
+  "analogKeyID": 85,
+  "hid": 75
+ },
+ {
+  "name": "Page Down",
+  "inputID": "KEY_PAGE_DOWN",
+  "type": "Navigation",
+  "scancode": 81,
+  "analogKeyID": 86,
+  "hid": 78
+ },
+ {
+  "name": "Right",
+  "inputID": "KEY_RIGHT_ARROW",
+  "type": "Navigation",
+  "scancode": 77,
+  "analogKeyID": 89,
+  "hid": 79
+ },
+ {
+  "name": "Num Lock",
+  "inputID": "KEY_NUMPAD_NUM_LOCK",
+  "type": "Numpad",
+  "scancode": 69,
+  "analogKeyID": 90,
+  "hid": 83
+ },
+ {
+  "name": "Num 7",
+  "inputID": "KEY_NUMPAD_7",
+  "type": "Numpad",
+  "scancode": 71,
+  "analogKeyID": 91,
+  "hid": 95
+ },
+ {
+  "name": "Num 4",
+  "inputID": "KEY_NUMPAD_4",
+  "type": "Numpad",
+  "scancode": 75,
+  "analogKeyID": 92,
+  "hid": 92
+ },
+ {
+  "name": "Num 1",
+  "inputID": "KEY_NUMPAD_1",
+  "type": "Numpad",
+  "scancode": 79,
+  "analogKeyID": 93,
+  "hid": 89
+ },
+ {
+  "name": "Num /",
+  "inputID": "KEY_NUMPAD_SLASH",
+  "type": "Numpad",
+  "scancode": 53,
+  "analogKeyID": 95,
+  "hid": 84
+ },
+ {
+  "name": "Num 8",
+  "inputID": "KEY_NUMPAD_8",
+  "type": "Numpad",
+  "scancode": 72,
+  "analogKeyID": 96,
+  "hid": 96
+ },
+ {
+  "name": "Num 5",
+  "inputID": "KEY_NUMPAD_5",
+  "type": "Numpad",
+  "scancode": 76,
+  "analogKeyID": 97,
+  "hid": 93
+ },
+ {
+  "name": "Num 2",
+  "inputID": "KEY_NUMPAD_2",
+  "type": "Numpad",
+  "scancode": 80,
+  "analogKeyID": 98,
+  "hid": 90
+ },
+ {
+  "name": "Num 0",
+  "inputID": "KEY_NUMPAD_0",
+  "type": "Numpad",
+  "scancode": 82,
+  "analogKeyID": 99,
+  "hid": 98
+ },
+ {
+  "name": "Num *",
+  "inputID": "KEY_NUMPAD_ASTERISK",
+  "type": "Numpad",
+  "scancode": 55,
+  "analogKeyID": 100,
+  "hid": 85
+ },
+ {
+  "name": "Num 9",
+  "inputID": "KEY_NUMPAD_9",
+  "type": "Numpad",
+  "scancode": 73,
+  "analogKeyID": 101,
+  "hid": 97
+ },
+ {
+  "name": "Num 6",
+  "inputID": "KEY_NUMPAD_6",
+  "type": "Numpad",
+  "scancode": 77,
+  "analogKeyID": 102,
+  "hid": 94
+ },
+ {
+  "name": "Num 3",
+  "inputID": "KEY_NUMPAD_3",
+  "type": "Numpad",
+  "scancode": 81,
+  "analogKeyID": 103,
+  "hid": 91
+ },
+ {
+  "name": "Num .",
+  "inputID": "KEY_NUMPAD_PERIOD",
+  "type": "Numpad",
+  "scancode": 83,
+  "analogKeyID": 104,
+  "hid": 99
+ },
+ {
+  "name": "Num -",
+  "inputID": "KEY_NUMPAD_DASH",
+  "type": "Numpad",
+  "scancode": 74,
+  "analogKeyID": 105,
+  "hid": 86
+ },
+ {
+  "name": "Num +",
+  "inputID": "KEY_NUMPAD_PLUS",
+  "type": "Numpad",
+  "scancode": 78,
+  "analogKeyID": 106,
+  "hid": 87
+ },
+ {
+  "name": "Num Enter",
+  "inputID": "KEY_NUMPAD_ENTER",
+  "type": "Numpad",
+  "scancode": 28,
+  "analogKeyID": 108,
+  "hid": 88
+ },
+ {
+  "name": "Esc",
+  "inputID": "KEY_ESC",
+  "type": "Navigation",
+  "scancode": 1,
+  "analogKeyID": 110,
+  "hid": 41
+ },
+ {
+  "name": "F1",
+  "inputID": "KEY_F1",
+  "type": "Function",
+  "scancode": 59,
+  "analogKeyID": 112,
+  "hid": 58
+ },
+ {
+  "name": "F2",
+  "inputID": "KEY_F2",
+  "type": "Function",
+  "scancode": 60,
+  "analogKeyID": 113,
+  "hid": 59
+ },
+ {
+  "name": "F3",
+  "inputID": "KEY_F3",
+  "type": "Function",
+  "scancode": 61,
+  "analogKeyID": 114,
+  "hid": 60
+ },
+ {
+  "name": "F4",
+  "inputID": "KEY_F4",
+  "type": "Function",
+  "scancode": 62,
+  "analogKeyID": 115,
+  "hid": 61
+ },
+ {
+  "name": "F5",
+  "inputID": "KEY_F5",
+  "type": "Function",
+  "scancode": 63,
+  "analogKeyID": 116,
+  "hid": 62
+ },
+ {
+  "name": "F6",
+  "inputID": "KEY_F6",
+  "type": "Function",
+  "scancode": 64,
+  "analogKeyID": 117,
+  "hid": 63
+ },
+ {
+  "name": "F7",
+  "inputID": "KEY_F7",
+  "type": "Function",
+  "scancode": 65,
+  "analogKeyID": 118,
+  "hid": 64
+ },
+ {
+  "name": "F8",
+  "inputID": "KEY_F8",
+  "type": "Function",
+  "scancode": 66,
+  "analogKeyID": 119,
+  "hid": 65
+ },
+ {
+  "name": "F9",
+  "inputID": "KEY_F9",
+  "type": "Function",
+  "scancode": 67,
+  "analogKeyID": 120,
+  "hid": 66
+ },
+ {
+  "name": "F10",
+  "inputID": "KEY_F10",
+  "type": "Function",
+  "scancode": 68,
+  "analogKeyID": 121,
+  "hid": 67
+ },
+ {
+  "name": "F11",
+  "inputID": "KEY_F11",
+  "type": "Function",
+  "scancode": 87,
+  "analogKeyID": 122,
+  "hid": 68
+ },
+ {
+  "name": "F12",
+  "inputID": "KEY_F12",
+  "type": "Function",
+  "scancode": 88,
+  "analogKeyID": 123,
+  "hid": 69
+ },
+ {
+  "name": "Print Screen",
+  "inputID": "KEY_PRINT_SCREEN",
+  "type": "Navigation",
+  "scancode": 55,
+  "analogKeyID": 124,
+  "hid": 70
+ },
+ {
+  "name": "Scroll Lock",
+  "inputID": "KEY_SCROLL_LOCK",
+  "type": "Modifiers",
+  "scancode": 70,
+  "analogKeyID": 125,
+  "hid": 71
+ },
+ {
+  "name": "Pause",
+  "inputID": "KEY_PAUSE",
+  "type": "Navigation",
+  "scancode": 29,
+  "analogKeyID": 126,
+  "hid": 72
+ },
+ {
+  "name": "Windows",
+  "inputID": "KEY_LEFT_GUI",
+  "type": "Modifiers",
+  "scancode": 91,
+  "analogKeyID": 127,
+  "hid": 227
+ },
+ {
+  "name": "Menu",
+  "inputID": "KEY_APPLICATION",
+  "type": "Navigation",
+  "scancode": 93,
+  "analogKeyID": 129,
+  "hid": 101
+ },
+ {
+  "name": "KEY_BEFORE_SPACE",
+  "inputID": "KEY_MUHENKAN",
+  "type": "",
+  "scancode": 123,
+  "analogKeyID": 150,
+  "hid": 139
+ },
+ {
+  "name": "KEY_BEFORE_RIGHT_ALT",
+  "inputID": "KEY_KATAKANA_HIRAGANA",
+  "type": "",
+  "scancode": 112,
+  "analogKeyID": 151,
+  "hid": 136
+ },
+ {
+  "name": "KEY_AFTER_SPACE",
+  "inputID": "KEY_HENKAN",
+  "type": "",
+  "scancode": 121,
+  "analogKeyID": 154,
+  "hid": 138
+ }
+]

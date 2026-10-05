@@ -1,0 +1,6 @@
+# F22: unplugged at t=10 with the power-brake flag set for the first 6 s after the flip, nothing after -> never BATTERY_LIMITED (delta D2)
+#expect-never BATTERY_LIMITED
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat
+10,1,0,,40,50,30,80,80,105,0.1,,,,,0x0,60,,1000,20000,0x5,70
+6,0,0,,40,50,20,35,80,105,0.1,,,,0.2,0x80,60,1,900,-40000,0x2,70
+20,0,0,,40,50,20,35,80,105,0.1,,,,,0x0,60,1,900,-40000,0x2,70

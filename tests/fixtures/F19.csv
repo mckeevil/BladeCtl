@@ -1,0 +1,9 @@
+# F19: DC, the app in front uses 0.97 cores at 1840 MHz; Windows DC max 80%, boost off, nominal 2304 MHz; AC reference 45 W / 4200 MHz -> CPU_LIMITED_BATTERY + Windows clause, CPU row C5 (the 6 s mean crosses 0.85 at t=14, then the 6 s attention hold over the asleep GPU: t=20, as GPU Glance F11)
+#learned cpu=App:45:4200
+#expect-by CPU_LIMITED_BATTERY 20
+#expect-final CPU_LIMITED_BATTERY
+#expect-action Windows caps the CPU at 80% on battery with boost off.
+#expect-cpu C5_Windows
+dur,ac,d,pdh,rate,batstate,bat,fg,fgcores,pkg,freq,allcore,dcmax,dcboost,nominal
+10,0,3,0,-20000,0x2,60,App,0.1,8,1500,10,80,0,2304
+30,0,3,0,-30000,0x2,60,App,0.97,18,1840,12,80,0,2304

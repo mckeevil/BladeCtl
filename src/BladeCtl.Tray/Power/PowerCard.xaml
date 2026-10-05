@@ -1,0 +1,225 @@
+<UserControl x:Class="BladeCtl.Tray.Power.PowerCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:power="clr-namespace:BladeCtl.Tray.Power">
+  <!-- 2.7.0 Power card (spec 11). DataContext = PowerVm. No red anywhere in this card: THERMAL is amber "Too hot".
+       Collapse order (so the Performance card stays reachable at the minimum window size): row reasons show only on
+       HELD BACK / HOT / AT LIMIT rows, one line, full text in the tooltip; the sparkline, battery health, "Reset learned"
+       and the sources line sit behind the battery line, which is a toggle (closed by default, remembered for the session). -->
+  <UserControl.Resources>
+    <DataTemplate x:Key="PowerRowTemplate" DataType="{x:Type power:RowModel}">
+      <Grid Margin="0,5,0,0" Background="Transparent" ToolTip="{Binding ReasonTip}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="52"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto" MinWidth="86"/>
+          <ColumnDefinition Width="Auto" MinWidth="92"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource Label}" Text="{Binding Name}" VerticalAlignment="Center"/>
+        <power:HeadroomBar Grid.Column="1" Model="{Binding Bar}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="2" Text="{Binding Numbers}" Style="{StaticResource Mono}" FontSize="12" TextWrapping="NoWrap"
+                   HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0"/>
+        <Border Grid.Column="3" Style="{StaticResource StatusChip}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                Visibility="{Binding HasChip, Converter={StaticResource BoolToVis}}">
+          <StackPanel Orientation="Horizontal">
+            <Path Style="{StaticResource StatusPath}" Data="{Binding Glyph, Converter={StaticResource GlyphConv}}"/>
+            <TextBlock Style="{StaticResource StatusInk}" Text="{Binding Word}" Margin="4,0,0,0"/>
+          </StackPanel>
+        </Border>
+        <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource Muted}" Text="{Binding Reason}" Margin="0,1,0,0"
+                   TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                   Visibility="{Binding ShowReason, Converter={StaticResource BoolToVis}}"/>
+      </Grid>
+    </DataTemplate>
+    <!-- the battery line as a quiet toggle: chevron + text, keyboard focusable (Space / Enter) -->
+    <Style x:Key="DetailsToggle" TargetType="ToggleButton">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border Background="{TemplateBinding Background}" Padding="0,2">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="14"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Path x:Name="Chevron" Data="M3,1 L7,5 L3,9" Stroke="{StaticResource Text2Brush}" StrokeThickness="1.4" Width="10" Height="10"
+                      VerticalAlignment="Center" HorizontalAlignment="Left" RenderTransformOrigin="0.5,0.5">
+                  <Path.RenderTransform><RotateTransform Angle="0"/></Path.RenderTransform>
+                </Path>
+                <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Chevron" Property="RenderTransform"><Setter.Value><RotateTransform Angle="90"/></Setter.Value></Setter>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </UserControl.Resources>
+
+  <Border Style="{StaticResource Card}" Margin="0,0,0,10">
+    <StackPanel>
+      <!-- header: where power comes from, as the Razer EC reports it -->
+      <Grid Margin="0,0,0,8">
+        <TextBlock Style="{StaticResource Label}" Text="Power" VerticalAlignment="Center"/>
+        <Grid HorizontalAlignment="Right" ToolTip="{Binding Header.Tip}">
+          <Border Style="{StaticResource Chip}" Height="22">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <Path Data="{Binding Header.Glyph, Converter={StaticResource GlyphConv}}" Width="14" Height="14" Stretch="Uniform"
+                    Stroke="{StaticResource TextBrush}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" VerticalAlignment="Center"/>
+              <TextBlock Text="{Binding Header.Text}" FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+              <TextBlock Text="{Binding Header.Provenance, StringFormat='&#x00B7; {0}'}" Style="{StaticResource Muted}" Margin="6,0,0,0" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+            </StackPanel>
+          </Border>
+          <Rectangle RadiusX="6" RadiusY="6" Stroke="{StaticResource Text2Brush}" StrokeThickness="1" StrokeDashArray="2 2"
+                     Visibility="{Binding Header.Dotted, Converter={StaticResource BoolToVis}}" IsHitTestVisible="False"/>
+        </Grid>
+      </Grid>
+
+      <!-- verdict strip -->
+      <Grid>
+        <Border x:Name="Strip" CornerRadius="10" Padding="12,10" BorderThickness="3,0,0,0">
+          <Border.Style>
+            <Style TargetType="Border">
+              <Setter Property="Background" Value="{StaticResource Panel2Brush}"/>
+              <Setter Property="BorderBrush" Value="{StaticResource Text3Brush}"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Strip.Kind}" Value="warn">
+                  <Setter Property="Background" Value="{StaticResource WarnDimBrush}"/>
+                  <Setter Property="BorderBrush" Value="{StaticResource WarnBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Strip.Kind}" Value="ok"><Setter Property="BorderBrush" Value="{StaticResource OkBrush}"/></DataTrigger>
+                <DataTrigger Binding="{Binding Strip.Kind}" Value="accent"><Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/></DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Border.Style>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Path Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Top" Margin="0,1,10,0" StrokeThickness="1.8"
+                  StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Data="{Binding Strip.Glyph, Converter={StaticResource GlyphConv}}">
+              <Path.Style>
+                <Style TargetType="Path">
+                  <Setter Property="Stroke" Value="{StaticResource Text2Brush}"/>
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding Strip.Kind}" Value="warn"><Setter Property="Stroke" Value="{StaticResource WarnBrush}"/></DataTrigger>
+                    <DataTrigger Binding="{Binding Strip.Kind}" Value="ok"><Setter Property="Stroke" Value="{StaticResource OkBrush}"/></DataTrigger>
+                    <DataTrigger Binding="{Binding Strip.Kind}" Value="accent"><Setter Property="Stroke" Value="{StaticResource AccentBrush}"/></DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Path.Style>
+            </Path>
+            <StackPanel Grid.Column="1">
+              <TextBlock x:Name="StripStatus" Text="{Binding Strip.Status}" FontFamily="{StaticResource HeadFont}" FontSize="14" FontWeight="SemiBold"
+                         TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+              <TextBlock Text="{Binding Strip.Action}" FontSize="12" Foreground="{StaticResource Text2Brush}" Margin="0,2,0,0"
+                         Visibility="{Binding HasAction, Converter={StaticResource BoolToVis}}"/>
+            </StackPanel>
+            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource QuietButton}" Height="28" Padding="10,0" Margin="0,8,0,0" HorizontalAlignment="Left"
+                    Content="{Binding Strip.ButtonText}" Command="{Binding ButtonCommand}" CommandParameter="{Binding Strip.ButtonId}"
+                    Visibility="{Binding HasButton, Converter={StaticResource BoolToVis}}"/>
+          </Grid>
+        </Border>
+        <Rectangle RadiusX="10" RadiusY="10" Stroke="{StaticResource WarnBrush}" StrokeThickness="1" StrokeDashArray="2 2" IsHitTestVisible="False"
+                   Visibility="{Binding Strip.Probably, Converter={StaticResource BoolToVis}}"/>
+      </Grid>
+
+      <!-- flow: charger -> laptop -> battery -->
+      <power:PowerFlow Model="{Binding Flow}" Margin="0,8,0,0"/>
+
+      <!-- headroom rows -->
+      <ContentControl Content="{Binding Cpu}" ContentTemplate="{StaticResource PowerRowTemplate}" Focusable="False"
+                      Visibility="{Binding Cpu.Visible, Converter={StaticResource BoolToVis}}"/>
+      <ContentControl Content="{Binding Gpu}" ContentTemplate="{StaticResource PowerRowTemplate}" Focusable="False"
+                      Visibility="{Binding Gpu.Visible, Converter={StaticResource BoolToVis}}"/>
+      <ContentControl Content="{Binding Supply}" ContentTemplate="{StaticResource PowerRowTemplate}" Focusable="False"
+                      Visibility="{Binding Supply.Visible, Converter={StaticResource BoolToVis}}"/>
+
+      <!-- active causes -->
+      <ItemsControl ItemsSource="{Binding Chips}" Margin="0,6,0,0" Focusable="False" Visibility="{Binding HasChips, Converter={StaticResource BoolToVis}}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="{x:Type power:ChipModel}">
+            <!-- the current cause: amber AND a 1 px outline AND semibold text, so it never relies on colour alone -->
+            <Border CornerRadius="6" Height="22" Padding="8,0" Margin="0,0,6,4" BorderThickness="1"
+                    ToolTip="{Binding Text}" AutomationProperties.Name="{Binding Text}">
+              <Border.Style>
+                <Style TargetType="Border">
+                  <Setter Property="Background" Value="{StaticResource AccentDimBrush}"/>
+                  <Setter Property="BorderBrush" Value="Transparent"/>
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding Cause}" Value="True">
+                      <Setter Property="Background" Value="{StaticResource WarnDimBrush}"/>
+                      <Setter Property="BorderBrush" Value="{StaticResource WarnBrush}"/>
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Border.Style>
+              <TextBlock Text="{Binding Text}" FontSize="11" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                    <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Cause}" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource WarnBrush}"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- battery line (spec 10), the toggle for the details below it -->
+      <ToggleButton Style="{StaticResource DetailsToggle}" Margin="0,4,0,0" IsChecked="{Binding DetailsOpen, Mode=TwoWay}"
+                    ToolTip="{Binding BatteryTip}" AutomationProperties.Name="{Binding BatteryLine}"
+                    AutomationProperties.HelpText="Shows the battery history, battery health and where each number comes from">
+        <TextBlock Text="{Binding BatteryLine}" FontSize="12" Foreground="{StaticResource Text2Brush}" TextWrapping="Wrap"/>
+      </ToggleButton>
+
+      <StackPanel Visibility="{Binding DetailsOpen, Converter={StaticResource BoolToVis}}">
+        <!-- sparkline -->
+        <Grid Margin="0,6,0,2">
+          <TextBlock Style="{StaticResource Label}" Text="Battery · last 10 min" FontSize="10"/>
+          <TextBlock Text="{Binding Spark.RangeText}" Style="{StaticResource Mono}" FontSize="10" Foreground="{StaticResource Text3Brush}" HorizontalAlignment="Right"/>
+        </Grid>
+        <power:Sparkline Model="{Binding Spark}"/>
+        <Grid Margin="0,1,0,0">
+          <TextBlock Text="&#x2212;10 min" Style="{StaticResource Muted}" FontSize="9.5"/>
+          <TextBlock Text="now" Style="{StaticResource Muted}" FontSize="9.5" HorizontalAlignment="Right"/>
+        </Grid>
+
+        <!-- footer -->
+        <Grid Margin="0,4,0,0">
+          <TextBlock Text="{Binding HealthLine}" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,110,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+          <Button Style="{StaticResource GhostButton}" Height="20" Padding="4,0" HorizontalAlignment="Right"
+                  Command="{Binding ResetLearnedCommand}" ToolTip="Forget the learned GPU limits, CPU references and charge curve">
+            <TextBlock Text="Reset learned…" FontSize="11" Foreground="{StaticResource Text2Brush}" TextDecorations="Underline"/>
+          </Button>
+        </Grid>
+        <TextBlock Text="{Binding Footer}" ToolTip="{Binding Footer}" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="0,2,0,0"/>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

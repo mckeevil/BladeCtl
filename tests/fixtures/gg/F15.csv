@@ -1,0 +1,11 @@
+# F15: BATTERY_LIMITED on battery, then plugged in while the firmware still holds L at 35 W for 6 s (SPEC 6.3, 15; G3)
+# -> never LIMITED_ON_AC; the amber state ends at the plug event and the icon is green at once (G3: within 12 s)
+#learned lac=93
+#expect-at BATTERY_LIMITED 18
+#expect-never LIMITED_ON_AC
+#expect-at FULL_POWER 20
+#expect-at FULL_POWER 32
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,reasons,temp,psrc,clk,rate,batstate,bat
+20,0,0,,95,97,34.6,35,80,105,0.92,0x4,66,1,1010,-60000,0x2,70
+6,1,0,,95,97,34.6,35,80,105,0.92,0x4,66,0,1010,20000,0x5,70
+20,1,0,,95,97,92,93,80,105,0.9,0x4,74,0,1440,20000,0x5,70

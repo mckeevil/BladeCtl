@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>BladeCtl</AssemblyName>
+    <RootNamespace>BladeCtl.Tray</RootNamespace>
+    <ApplicationIcon>bladectl.ico</ApplicationIcon>
+    <Version>2.7.0</Version>
+    <Product>BladeCtl</Product>
+    <Company>mckeevil</Company>
+    <Description>Razer Blade 15 Advanced (Mid 2021) fan, power and lighting control without Synapse</Description>
+
+    <!-- Framework-dependent single file by default (build-publish.ps1 -SelfContained overrides). -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>none</DebugType>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- WinForms is kept only for NotifyIcon / NativeWindow / PowerStatus. Its implicit usings would
+       collide with WPF's System.Windows types, so they are removed and added per file. -->
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+    <!-- WPF's implicit usings drop System.IO (its Shapes.Path collides) and pull in nine System.Windows.*
+         namespaces that collide with WinForms types. Each file declares its own WPF usings instead. -->
+    <Using Include="System.IO" />
+    <Using Remove="System.Windows" />
+    <Using Remove="System.Windows.Controls" />
+    <Using Remove="System.Windows.Data" />
+    <Using Remove="System.Windows.Documents" />
+    <Using Remove="System.Windows.Input" />
+    <Using Remove="System.Windows.Media" />
+    <Using Remove="System.Windows.Media.Imaging" />
+    <Using Remove="System.Windows.Navigation" />
+    <Using Remove="System.Windows.Shapes" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BladeCtl.Core\BladeCtl.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="Nefarius.ViGEm.Client" Version="1.16.148" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="bladectl.ico" />
+  </ItemGroup>
+
+</Project>

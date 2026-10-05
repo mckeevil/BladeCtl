@@ -1,0 +1,6 @@
+# F15: AC on the 230 W barrel, Rate -9000 mW for 40 s -> CHARGER_LIMITED (Draining) with the barrel wording
+#expect-by CHARGER_LIMITED 38
+#expect-final CHARGER_LIMITED
+#expect-action The battery is draining 9 W while plugged in. Even the 230 W charger can't keep up with this load.
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,class,adapterw
+40,1,0,,60,70,55,80,80,105,0.1,,,,,0x0,70,,1300,-9000,0x3,60,barrel,230

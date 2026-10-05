@@ -1,0 +1,12 @@
+# F3: DC, U 97, L 35, P 34.6, duty74 0.92, Lac 93 -> BATTERY_LIMITED by 6 s (after 10 s plugged in at full power; unplug at t=10)
+# Columns: dur = seconds this row lasts (2 s ticks); ac 1/0; d = D-state number (0 = D0, 3 = D3); display = a monitor on the dGPU;
+# pdh = dGPU busy % from PDH; util/p/l/ldef/lmax = NVML utilisation, power W, enforced/default/max limit W (only seen when the gate is open);
+# cap74/low78/sw269/hw270/brake271 = counter duty 0..1; reasons = clock-event bits; rate = battery mW (+ charging); batstate = PowerState flags;
+# fg/fggpu/fgcores/pkg/freq = foreground app, its GPU (1 Intel, 2 NVIDIA), cores busy, CPU package W, MHz; holders = Name:bytes:busy[:docked]|...
+#learned lac=93
+#expect-by BATTERY_LIMITED 16
+#expect-final BATTERY_LIMITED
+#expect-tooltip up to 93 W plugged in
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq,holders
+10,1,0,,95,97,92,93,80,105,0.9,,,,,0x4,74,,1440,20000,0x5,70,,,,,,
+20,0,0,,95,97,34.6,35,80,105,0.92,,,,,0x4,66,1,1010,-60000,0x2,70,,,,,,

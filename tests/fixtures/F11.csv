@@ -1,0 +1,13 @@
+# F11: DC, FreeCAD fgCores 0.97, pkg 18 W, 2100 MHz; profile 45 W / 4200 MHz -> CPU_LIMITED_BATTERY (busy from t=10; the 6 s mean crosses 0.85 at t=14, then the 6 s attention hold: t=20)
+# Columns: dur = seconds this row lasts (2 s ticks); ac 1/0; d = D-state number (0 = D0, 3 = D3); display = a monitor on the dGPU;
+# pdh = dGPU busy % from PDH; util/p/l/ldef/lmax = NVML utilisation, power W, enforced/default/max limit W (only seen when the gate is open);
+# cap74/low78/sw269/hw270/brake271 = counter duty 0..1; reasons = clock-event bits; rate = battery mW (+ charging); batstate = PowerState flags;
+# fg/fggpu/fgcores/pkg/freq = foreground app, its GPU (1 Intel, 2 NVIDIA), cores busy, CPU package W, MHz; holders = Name:bytes:busy[:docked]|...
+#learned cpu=FreeCAD:45:4200
+#expect-by CPU_LIMITED_BATTERY 20
+#expect-final CPU_LIMITED_BATTERY
+#expect-tooltip Plug in: FreeCAD is CPU-bound
+#expect-tooltip (18 W vs ~45 W plugged in)
+dur,ac,d,display,pdh,util,p,l,ldef,lmax,cap74,low78,sw269,hw270,brake271,reasons,temp,psrc,clk,rate,batstate,bat,fg,fggpu,fgcores,pkg,freq,holders
+10,0,3,,0,,,,,,,,,,,,,,,-20000,0x2,60,FreeCAD,1,0.1,8,1500,
+30,0,3,,0,,,,,,,,,,,,,,,-30000,0x2,60,FreeCAD,1,0.97,18,2100,

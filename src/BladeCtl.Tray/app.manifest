@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="BladeCtl.Tray"/>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v2">
+        <!--
+          asInvoker on purpose. Elevation comes from the AutoStart logon task
+          (RunLevel HighestAvailable), which starts BladeCtl elevated with no UAC prompt.
+          requireAdministrator here would prompt on every manual launch and every CLI query,
+          so the window offers an explicit "Restart as administrator" button instead.
+          Elevation matters because the CPU thermal zone (MSAcpi_ThermalZoneTemperature)
+          is administrator only; without it the fan auto revert watches the GPU alone.
+          NOTE: XML comments may not contain a double hyphen, so CLI flags are not written here.
+        -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" /> <!-- Windows 10 and 11 -->
+    </application>
+  </compatibility>
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+    </windowsSettings>
+  </application>
+</assembly>
